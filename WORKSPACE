@@ -58,6 +58,14 @@ bind(
     actual = "@local_config_python//:python_headers",
 )
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "eigen",
+    build_file = "//:eigen.BUILD",
+    urls = ["https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz"],
+    strip_prefix = "eigen-3.4.0",
+)
+
 ## Testing
 git_repository(
     name = "com_google_googletest",

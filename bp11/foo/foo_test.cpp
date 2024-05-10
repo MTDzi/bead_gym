@@ -5,6 +5,7 @@
 #include <numeric>
 #include <string>
 
+
 namespace bp11::foo {
 TEST(FooTest, FreeFunction) {
   EXPECT_NO_THROW(freeFunction(42));

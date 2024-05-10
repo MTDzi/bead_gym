@@ -3,9 +3,14 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <Eigen/Dense>
 
 namespace bp11::foo {
 void freeFunction(int level) {
+  Eigen::MatrixXd mat1(2, 2);
+
+  std::cout << mat1(0, 0) << std::endl;
+
   std::cout << "[" << level << "] Enter " << __func__ << "(int)" << std::endl;
   std::cout << "[" << level << "] Exit " << __func__ << "(int)" << std::endl;
 }
