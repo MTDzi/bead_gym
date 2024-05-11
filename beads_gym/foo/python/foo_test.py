@@ -4,9 +4,9 @@
 import sys
 import unittest
 
-import bp11.foo.python as fp
-import bp11.foo.python.pyfoo as fpf
-from bp11.foo.python.pyfoo import Foo
+import beads_gym.foo.python as fp
+import beads_gym.foo.python.pyfoo as fpf
+from beads_gym.foo.python.pyfoo import Foo
 
 if __debug__:
     print(f'python path: {sys.path}')

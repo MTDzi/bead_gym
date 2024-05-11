@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-//! @namespace bp11 The Foo namespace
-namespace bp11 {
+//! @namespace beads_gym The Foo namespace
+namespace beads_gym {
 //! @namespace foo The Foo namespace
 namespace foo {
 //! @defgroup FreeFunction Free function usage.
@@ -130,4 +130,4 @@ class Foo {
   int64_t _int64Value = 0;
 };
 } // namespace foo
-} // namespace bp11
+} // namespace beads_gym

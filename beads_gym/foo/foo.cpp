@@ -1,11 +1,11 @@
-#include "bp11/foo/foo.hpp"
+#include "beads_gym/foo/foo.hpp"
 
 #include <iostream>
 #include <string>
 #include <utility>
 #include <Eigen/Dense>
 
-namespace bp11::foo {
+namespace beads_gym::foo {
 void freeFunction(int level) {
   Eigen::MatrixXd mat1(2, 2);
 
@@ -193,4 +193,4 @@ std::string Foo::operator()() const {
          ",\"int64\":" + std::to_string(_int64Value) + "}";
 }
 
-} // namespace bp11.foo
+} // namespace beads_gym.foo

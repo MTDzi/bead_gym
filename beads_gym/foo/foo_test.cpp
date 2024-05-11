@@ -1,4 +1,4 @@
-#include "bp11/foo/foo.hpp"
+#include "beads_gym/foo/foo.hpp"
 
 #include <gtest/gtest.h>
 #include <iostream>
@@ -6,7 +6,7 @@
 #include <string>
 
 
-namespace bp11::foo {
+namespace beads_gym::foo {
 TEST(FooTest, FreeFunction) {
   EXPECT_NO_THROW(freeFunction(42));
   EXPECT_NO_THROW(freeFunction(int64_t{42}));
@@ -146,4 +146,4 @@ TEST(FooTest, PrintMethod) {
   EXPECT_EQ("\"Foo\":{\"int\":0,\"int64\":0}", str);
 }
 
-} // namespace bp11::foo
+} // namespace beads_gym::foo
