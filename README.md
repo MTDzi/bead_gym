@@ -38,7 +38,7 @@ Requires `myml.vscode-markdown-plantuml-preview` and `bat67.markdown-extension-p
 @startuml
 
 abstract class Bead {
-    - position: Vec3d
+- position: Vec3d
     - orientation: Vec3d
     - radius: double
 }

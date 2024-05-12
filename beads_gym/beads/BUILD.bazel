@@ -1,0 +1,37 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "beads",
+    srcs = [
+        "bead.cpp",
+        "three_degrees_of_freedom_bead.cpp",
+    ],
+    hdrs = [
+        "bead.hpp",
+        "three_degrees_of_freedom_bead.hpp",
+    ],
+    copts = ["-Iexternal/eigen"],
+    #strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@eigen"
+    ]
+)
+
+cc_test(
+    name = "all_unit_tests",
+    srcs = [
+        "bead_unit_test.cpp",
+        "three_degrees_of_freedom_bead_unit_test.cpp"
+    ],
+    features = [
+        "treat_warnings_as_errors",
+        "strict_clang_tidy_warnings",
+        "strict_warnings",
+        "test_warnings",
+    ],
+    deps = [
+        ":beads",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
