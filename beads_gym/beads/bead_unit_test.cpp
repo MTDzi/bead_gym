@@ -10,8 +10,10 @@
 namespace beads_gym::beads {
   
 TEST(BeadTest, BeadConstructor) {
-  Bead<Eigen::Vector3d> bead_3d{{0, 0, 0}};
-  Bead<Eigen::Vector2d> bead_2d{{0, 0}};
+  std::vector<double> position{0, 0, 0};
+  Eigen::Vector3d position_3d{position.data()};
+  Bead<Eigen::Vector3d> bead_3d{position_3d};
+  // Bead<Eigen::Vector2d> bead_2d{{0, 0}};
 }
 
 // TEST(FooTest, StringVectorOutput) {

@@ -4,12 +4,16 @@
 #include <string>
 #include <utility>
 #include <Eigen/Dense>
+#include <vector>
 
 namespace beads_gym::beads {
 
 template <typename Eigen2or3dVector>
 class Bead {
   public:
+      Bead() = default;
+      Bead(std::vector<double> &position) : position_{Eigen2or3dVector{position.data()}} {}
+      // Bead(std::vector<double> &position) : position_{Eigen2or3dVector(position.data())} {}
       Bead(Eigen2or3dVector position) : position_{position} {}
       Bead(const Bead&) = default;
       Bead(Bead&&) = default;

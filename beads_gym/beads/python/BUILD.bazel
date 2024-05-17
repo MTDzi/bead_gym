@@ -3,18 +3,19 @@ load("@rules_python//python:defs.bzl", "py_test")
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
 
 pybind_extension(
-    name = "pyfoo",
-    srcs = ["foo.cpp"],
+    name = "bead",
+    srcs = ["bead.cpp"],
+    visibility = ["//beads_gym:__subpackages__"],
     deps = [
-        "//beads_gym/foo:foo",
+        "//beads_gym/beads:beads",
     ],
 )
 
 py_test(
-    name = "foo_test",
+    name = "bead_test",
     size = "small",
-    srcs = ["foo_test.py"],
+    srcs = ["bead_test.py"],
     python_version = "PY3",
-    deps = [":pyfoo"],
+    deps = [":bead"],
     tags = ["unit"],
 )

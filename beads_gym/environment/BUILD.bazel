@@ -1,0 +1,37 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "environment",
+    srcs = [
+        "environment.cpp",
+    ],
+    hdrs = [
+        "environment.hpp",
+    ],
+    copts = ["-Iexternal/eigen"],
+    #strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@eigen",
+        "//beads_gym/beads:beads",
+    ]
+)
+
+cc_test(
+    name = "all_unit_tests",
+    srcs = [
+        "environment_unit_test.cpp",
+        "environment.cpp"
+    ],
+    features = [
+        "treat_warnings_as_errors",
+        "strict_clang_tidy_warnings",
+        "strict_warnings",
+        "test_warnings",
+    ],
+    deps = [
+        ":environment",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
