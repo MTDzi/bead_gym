@@ -15,10 +15,10 @@ namespace py = pybind11;
 PYBIND11_MODULE(environment, m) {
     m.doc() = "environment module"; // optional module docstring
 
-    // Class Bead
-    py::class_<::beads_gym::environment::Environment<Eigen::Vector3d>>(m, "Environment")
+    // Class Environment
+    py::class_<::beads_gym::environment::Environment<Eigen::Vector3d>, std::shared_ptr<beads_gym::environment::Environment<Eigen::Vector3d>>>(m, "Environment")
       .def(py::init<>())
-      .def(py::init<std::vector<::beads_gym::beads::Bead<Eigen::Vector3d>>&>()) // Fix: Pass the vector by value
+      .def("add_bead", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead)
       // .def("set_position", &::beads_gym::environment::Environment<Eigen::Vector3d>::set_position)
       .def("get_beads", &::beads_gym::environment::Environment<Eigen::Vector3d>::get_beads);
 }

@@ -67,7 +67,9 @@ class BazelBuildExtension(build_ext.build_ext):
         if "python/" in ext_dest_path:
             ext_dest_path = ext_dest_path.replace("python/", "")
 
-        shutil.copyfile(ext_bazel_bin_path, Path(ext_dest_path))
+        ext_dest_path = Path(ext_dest_path)
+        ext_dest_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ext_bazel_bin_path, ext_dest_path)
 
 
 class GrabBazelExtensions:

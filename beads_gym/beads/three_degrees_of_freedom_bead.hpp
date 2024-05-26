@@ -14,6 +14,11 @@ class ThreeDegreesOfFreedomBead : public Bead<Eigen2or3dVector> {
             velocity_ = Eigen2or3dVector::Zero();
             acceleration_ = Eigen2or3dVector::Zero();
         }
+        ThreeDegreesOfFreedomBead(std::vector<double> &position, double mass) : Bead<Eigen2or3dVector>{position}, mass_{mass} {
+            velocity_ = Eigen2or3dVector::Zero();
+            acceleration_ = Eigen2or3dVector::Zero();
+        }
+
         ThreeDegreesOfFreedomBead(const ThreeDegreesOfFreedomBead&) = default;
         ThreeDegreesOfFreedomBead(ThreeDegreesOfFreedomBead&&) = default;
         ThreeDegreesOfFreedomBead& operator=(const ThreeDegreesOfFreedomBead&) = default;

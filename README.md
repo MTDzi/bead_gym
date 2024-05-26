@@ -3,7 +3,13 @@ The Environment is built from: Beads, Bonds, and Volumes.
 
 They are used to define the state (Beads joined with Bonds) as well as the reward (e.g., a path comprising non-material Beads connected with non-interactive Bonds).
 
-Everything is in 3D, although during implementation I'll try to write it such that it's always possible to adapt it for a 2D application. The main use-case I'm thinkin about is an environment for 
+Everything is in 3D, although during implementation I'll try to write it such that it's always possible to adapt it for a 2D application. 
+
+The **main use-case I'm thinkin about** is an environment for a quadrotor flying along a pre-defined path ("3D race track").
+
+A **more advanced use-case** I can foresee is a race invoving several quadrotors flying along a pre-defined path, but with obstacles / walls / etc. The quadrotors can bump against each other and the obstacles.
+
+Also, a **side use-case** could be a similar race to the one described above, but happening in 2D, and in this case the actuators would require implementing a vehicle dynamics model, so I'm not going to push for that too soon.
 
 
 # Beads
@@ -19,7 +25,7 @@ Each Bond defines a "potential function" or: a "force field" (FF) from which we 
 
 
 # Volumes
-For now, I can definitely imagine a floor-like Volume, i.e., one ensuring objects can take off from the floor, but I'm guessing obstacle definition could make use of this. Nothing more concrete for now.
+For now, I can definitely imagine a floor-like Volume, i.e., one ensuring objects can take off from the floor, but I'm guessing obstacle definition could make use of this. Also a tube along a list of waypoints is foreseeable. Nothing more concrete for now.
 
 
 # Force calculation
@@ -73,6 +79,65 @@ Bead <|-- GhostBead
 Bead <|-- StationaryBead
 Bead <|-- ThreeDegreeOfFreedomBead
 ThreeDegreeOfFreedomBead <|-- SixDegreeOfFreedomBead
+
+@enduml
+```
+
+What about the Environment?
+```plantuml
+@startuml
+
+class Environment {
+    - beads: List[Bead]
+    - integrator: Integrator
+}
+
+class Integrator {
+    - dt: double
+    - step(beads: List[beads]): void
+}
+
+@enduml
+```
+
+What about the Bonds?
+```plantuml
+@startuml
+
+class Bond {
+    potential(): double
+    force(): void
+    torque(): void
+}
+
+class TwoBeadsBond {
+    one: Bead
+    two: Bead
+}
+
+class DistanceBond {
+
+}
+
+class RepulsionBond {
+
+}
+
+class EarthSurfaceBond {
+    bead: Bead
+    // Can be done better with a Volume
+    // volume: Volume
+}
+
+class EarthsGravitationalPullBond {
+    bead: Bead
+}
+
+Bond <|-- TwoBeadsBond
+TwoBeadsBond <|-- DistanceBond
+TwoBeadsBond <|-- RepulsionBond
+Bond <|-- EarthSurfaceBond
+Bond <|-- EarthsGravitationalPullBond
 
 @enduml
 ```
