@@ -1,0 +1,10 @@
+defaults:
+  - _self_
+
+beads:
+  - _target_: beads_gym.beads.beads.Bead
+    position: [0., 0., 0.]
+
+  - _target_: beads_gym.beads.beads.ThreeDegreesOfFreedomBead
+    position: [0, 0, 0]
+    mass: 1.0

@@ -5,7 +5,8 @@ They are used to define the state (Beads joined with Bonds) as well as the rewar
 
 Everything is in 3D, although during implementation I'll try to write it such that it's always possible to adapt it for a 2D application. 
 
-The **main use-case I'm thinkin about** is an environment for a quadrotor flying along a pre-defined path ("3D race track").
+The **main use-case I'm thinkin about** is an environment for a quadrotor flying along a pre-defined path ("3D race track"). Not that exciting, but actually: the main source of inspiration was this drone from Red Bull that is capable of following an F1 car: https://youtu.be/9pEqyr_uT-k?si=XT6pCsmlhHApGAiA 
+I'd like to be able to have a race of these types of drones, flying through volumes of turbulant air, to have the chassis of the drone vibrate due to falling into resonance.
 
 A **more advanced use-case** I can foresee is a race invoving several quadrotors flying along a pre-defined path, but with obstacles / walls / etc. The quadrotors can bump against each other and the obstacles.
 
@@ -25,7 +26,10 @@ Each Bond defines a "potential function" or: a "force field" (FF) from which we 
 
 
 # Volumes
-For now, I can definitely imagine a floor-like Volume, i.e., one ensuring objects can take off from the floor, but I'm guessing obstacle definition could make use of this. Also a tube along a list of waypoints is foreseeable. Nothing more concrete for now.
+For now, I can definitely imagine:
+* a floor-like Volume, i.e., one ensuring objects can take off from the floor, but I'm guessing obstacle definition could make use of this
+* a high-turbulance Volume in which random forces are applied to each Bead (Langevin Dynamics)
+* a tube along a list of waypoints is foreseeable. Nothing more concrete for now.
 
 
 # Force calculation

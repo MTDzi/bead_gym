@@ -29,7 +29,7 @@ class Environment {
       void step() { std::cout << "Environment step" << std::endl; }
       void reset() { std::cout << "Environment reset" << std::endl; }
 
-      std::vector<std::shared_ptr<BeadType> > get_beads() const { return beads_; }
+      std::vector<std::shared_ptr<BeadType>> get_beads() const { return beads_; }
 
     private:
         std::vector<std::shared_ptr<BeadType>> beads_;
