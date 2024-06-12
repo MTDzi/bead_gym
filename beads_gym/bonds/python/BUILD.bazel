@@ -1,0 +1,21 @@
+# Python wrapper for foo library.
+load("@rules_python//python:defs.bzl", "py_test")
+load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
+
+pybind_extension(
+    name = "bonds",
+    srcs = ["bonds.cpp"],
+    visibility = ["//beads_gym:__subpackages__"],
+    deps = [
+        "//beads_gym/bonds:bonds",
+    ],
+)
+
+# py_test(
+#     name = "bonds_test",
+#     size = "small",
+#     srcs = ["bond_test.py"],
+#     python_version = "PY3",
+#     deps = [":beads", ":bonds"],
+#     tags = ["unit"],
+# )

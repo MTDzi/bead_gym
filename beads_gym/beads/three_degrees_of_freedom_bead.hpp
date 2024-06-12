@@ -10,15 +10,15 @@ namespace beads_gym::beads {
 template <typename Eigen2or3dVector>
 class ThreeDegreesOfFreedomBead : public Bead<Eigen2or3dVector> {
     public:
-        ThreeDegreesOfFreedomBead(Eigen2or3dVector position, double mass) : Bead<Eigen2or3dVector>{position}, mass_{mass} {
+        ThreeDegreesOfFreedomBead(size_t id, Eigen2or3dVector position, double mass) : Bead<Eigen2or3dVector>{id, position}, mass_{mass} {
             velocity_ = Eigen2or3dVector::Zero();
             acceleration_ = Eigen2or3dVector::Zero();
         }
-        ThreeDegreesOfFreedomBead(std::vector<double> &position, double mass) : Bead<Eigen2or3dVector>{position}, mass_{mass} {
+        ThreeDegreesOfFreedomBead(size_t id, std::vector<double> &position, double mass) : Bead<Eigen2or3dVector>{id, position}, mass_{mass} {
             velocity_ = Eigen2or3dVector::Zero();
             acceleration_ = Eigen2or3dVector::Zero();
         }
-
+        
         ThreeDegreesOfFreedomBead(const ThreeDegreesOfFreedomBead&) = default;
         ThreeDegreesOfFreedomBead(ThreeDegreesOfFreedomBead&&) = default;
         ThreeDegreesOfFreedomBead& operator=(const ThreeDegreesOfFreedomBead&) = default;

@@ -1,12 +1,14 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "environment",
+    name = "bonds",
     srcs = [
-        "environment.cpp",
+        "bond.cpp",
+        "distance_bond.cpp",
     ],
     hdrs = [
-        "environment.hpp",
+        "bond.hpp",
+        "distance_bond.hpp",
     ],
     copts = ["-Iexternal/eigen"],
     #strip_include_prefix = "include",
@@ -14,15 +16,13 @@ cc_library(
     deps = [
         "@eigen",
         "//beads_gym/beads:beads",
-        "//beads_gym/bonds:bonds",
     ]
 )
 
 cc_test(
     name = "all_unit_tests",
     srcs = [
-        "environment_unit_test.cpp",
-        "environment.cpp"
+        "distance_bond_unit_test.cpp",
     ],
     features = [
         "treat_warnings_as_errors",
@@ -31,8 +31,7 @@ cc_test(
         "test_warnings",
     ],
     deps = [
-        ":environment",
+        ":bonds",
         "@com_google_googletest//:gtest_main",
     ],
 )
-

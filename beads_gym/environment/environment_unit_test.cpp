@@ -19,11 +19,11 @@ TEST(BeadTest, EnvironmentConstructor) {
     std::vector<double> position{static_cast<double>(i), static_cast<double>(-i), 1.0d / static_cast<double>(i)};
     Eigen::Vector3d position_3d{position.data()};
 
-    auto bead = std::make_shared<beads_gym::beads::Bead<Eigen::Vector3d>>(Eigen::Vector3d{1.0, 1.0, 1.0});
+    auto bead = std::make_shared<beads_gym::beads::Bead<Eigen::Vector3d>>(0, Eigen::Vector3d{1.0, 1.0, 1.0});
 
     beads.push_back(bead);
   }
-  auto tdf_bead = std::make_shared<beads_gym::beads::ThreeDegreesOfFreedomBead<Eigen::Vector3d>>(Eigen::Vector3d::Zero(), 1.0d);
+  auto tdf_bead = std::make_shared<beads_gym::beads::ThreeDegreesOfFreedomBead<Eigen::Vector3d>>(0, Eigen::Vector3d::Zero(), 1.0d);
   beads.push_back(tdf_bead);
   Environment<Eigen::Vector3d> environment{beads};
 

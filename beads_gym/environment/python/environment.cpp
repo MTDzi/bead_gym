@@ -19,6 +19,6 @@ PYBIND11_MODULE(environment, m) {
     py::class_<::beads_gym::environment::Environment<Eigen::Vector3d>, std::shared_ptr<beads_gym::environment::Environment<Eigen::Vector3d>>>(m, "Environment")
       .def(py::init<>())
       .def("add_bead", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead)
-      // .def("set_position", &::beads_gym::environment::Environment<Eigen::Vector3d>::set_position)
+      .def("add_bond", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bond)
       .def("get_beads", &::beads_gym::environment::Environment<Eigen::Vector3d>::get_beads);
 }

@@ -17,13 +17,13 @@ PYBIND11_MODULE(beads, m) {
 
     // Class Bead
     py::class_<::beads_gym::beads::Bead<Eigen::Vector3d>, std::shared_ptr<::beads_gym::beads::Bead<Eigen::Vector3d>>>(m, "Bead")
-      .def(py::init<std::vector<double>&>(), py::arg("position"))
+      .def(py::init<size_t, std::vector<double>&>(), py::arg("id"), py::arg("position"))
       .def("set_position", &::beads_gym::beads::Bead<Eigen::Vector3d>::set_position)
       .def("get_position", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_position);
 
     // Class ThreeDegreesOfFreedomBead
     py::class_<::beads_gym::beads::ThreeDegreesOfFreedomBead<Eigen::Vector3d>, ::beads_gym::beads::Bead<Eigen::Vector3d>, std::shared_ptr<::beads_gym::beads::ThreeDegreesOfFreedomBead<Eigen::Vector3d>>>(m, "ThreeDegreesOfFreedomBead")
-      .def(py::init<std::vector<double>&, double>(), py::arg("position"), py::arg("mass"))
+      .def(py::init<size_t, std::vector<double>&, double>(), py::arg("id"), py::arg("position"), py::arg("mass"))
       .def("set_position", &::beads_gym::beads::ThreeDegreesOfFreedomBead<Eigen::Vector3d>::set_position)
       .def("get_position", &::beads_gym::beads::ThreeDegreesOfFreedomBead<Eigen::Vector3d>::get_position);
 }

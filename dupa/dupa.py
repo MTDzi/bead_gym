@@ -12,6 +12,7 @@ from omegaconf import DictConfig, OmegaConf
 
 from beads_gym.environment.environment import Environment
 from beads_gym.beads.beads import Bead, ThreeDegreesOfFreedomBead
+from beads_gym.bonds.bonds import DistanceBond
 
 
 def parse_args():
@@ -24,7 +25,7 @@ def parse_args():
 @hydra.main(config_path="conf", config_name="dupa")
 def main(cfg: DictConfig) -> None:
     bead_cfg_dict = OmegaConf.to_container(cfg.beads[0], resolve=True)
-    hydra.utils.instantiate(bead_cfg_dict)
+    some_initialized_bead = hydra.utils.instantiate(bead_cfg_dict)
     print(cfg)
 
 
@@ -58,13 +59,16 @@ def try_out_animation():
 
 if __name__ == "__main__":
     main()
-    bead = Bead([1, 1, 1])
-    tdf_bead = ThreeDegreesOfFreedomBead([1, 1, 1], 1.0)
+    bead = Bead(0, [1, 1, 1])
+    tdf_bead = ThreeDegreesOfFreedomBead(1, [1, 1, 1], 1.0)
+    
+    distance_bond = DistanceBond(0, 1)
 
     env = Environment()
     env.add_bead(bead)
     env.add_bead(tdf_bead)
+    env.add_bond(distance_bond)
 
-    print(env.get_beads())
+    print(f'env.get_beads() = {env.get_beads()}')
     
-    try_out_animation()
+    # try_out_animation()
