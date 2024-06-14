@@ -15,7 +15,6 @@ template <typename Eigen2or3dVector>
 class Environment {
 
   using BeadType = beads_gym::beads::Bead<Eigen2or3dVector>;
-  using BondType = beads_gym::bonds::Bond<Eigen2or3dVector>;
 
   public:
       Environment() = default;

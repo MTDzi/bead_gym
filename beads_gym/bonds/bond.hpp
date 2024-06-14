@@ -13,17 +13,17 @@ namespace beads_gym::bonds {
 template <typename Eigen2or3dVector>
 class Bond {
 
-    using Bead = beads_gym::beads::Bead<Eigen2or3dVector>;
+    using BeadType = beads_gym::beads::Bead<Eigen2or3dVector>;
 
     public:
         Bond(size_t bead_1_id, size_t bead_2_id) : bead_1_id_{bead_1_id}, bead_2_id_{bead_2_id} {}
 
-        void set_bead_1(std::shared_ptr<Bead> bead_1) {
+        void set_bead_1(std::shared_ptr<BeadType> bead_1) {
             bead_1_ = bead_1;
             assert(bead_1->get_id() == bead_1_id_);
         }
 
-        void set_bead_2(std::shared_ptr<Bead> bead_2) {
+        void set_bead_2(std::shared_ptr<BeadType> bead_2) {
             bead_2_ = bead_2;
             assert(bead_2->get_id() == bead_2_id_);
         }
@@ -52,7 +52,7 @@ class Bond {
     protected:
         size_t bead_1_id_;
         size_t bead_2_id_;
-        std::shared_ptr<Bead> bead_1_;
-        std::shared_ptr<Bead> bead_2_;
+        std::shared_ptr<BeadType> bead_1_;
+        std::shared_ptr<BeadType> bead_2_;
 };
 } // namespace beads_gym.bonds
