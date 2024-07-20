@@ -6,8 +6,8 @@
 #include <map>
 
 #include "beads_gym/beads/bead.hpp"
-
 #include "beads_gym/bonds/bond.hpp"
+#include "beads_gym/environment/integrator/integrator.hpp"
 
 namespace beads_gym::environment {
 
@@ -15,14 +15,12 @@ template <typename Eigen2or3dVector>
 class Environment {
 
   using BeadType = beads_gym::beads::Bead<Eigen2or3dVector>;
+  using BondType = beads_gym::bonds::Bond<Eigen2or3dVector>;
 
   public:
-      Environment() = default;
-      Environment(std::vector<std::shared_ptr<BeadType>> &beads) : beads_{beads} {}
-      Environment(const Environment&) = default;
-      Environment(Environment&&) = default;
-      Environment& operator=(const Environment&) = default;
-      Environment& operator=(Environment&&) = default;
+      Environment() : integrator_{integrator::Integrator<Eigen2or3dVector>(0.01)} {};
+      Environment(std::vector<std::shared_ptr<BeadType>> &beads)
+      : beads_{beads}, integrator_{integrator::Integrator<Eigen2or3dVector>(0.01)} {}
       ~Environment() = default;
     
 
@@ -46,6 +44,7 @@ class Environment {
         std::vector<std::shared_ptr<BeadType>> beads_;
         std::map<size_t, std::shared_ptr<BeadType>> beads_map_;
         std::vector<std::shared_ptr<BondType>> bonds_;
+        integrator::Integrator<Eigen2or3dVector> integrator_;
 };
 
 } // namespace beads_gym.environment

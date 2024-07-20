@@ -4,11 +4,9 @@ cc_library(
     name = "beads",
     srcs = [
         "bead.cpp",
-        "three_degrees_of_freedom_bead.cpp",
     ],
     hdrs = [
         "bead.hpp",
-        "three_degrees_of_freedom_bead.hpp",
     ],
     copts = ["-Iexternal/eigen"],
     #strip_include_prefix = "include",
@@ -22,7 +20,6 @@ cc_test(
     name = "all_unit_tests",
     srcs = [
         "bead_unit_test.cpp",
-        "three_degrees_of_freedom_bead_unit_test.cpp"
     ],
     features = [
         "treat_warnings_as_errors",

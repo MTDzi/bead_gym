@@ -6,12 +6,11 @@ import matplotlib.gridspec as gridspec
 import matplotlib.animation as animation
 plt.switch_backend('TkAgg')
 
-
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
 from beads_gym.environment.environment import Environment
-from beads_gym.beads.beads import Bead, ThreeDegreesOfFreedomBead
+from beads_gym.beads.beads import Bead
 from beads_gym.bonds.bonds import DistanceBond
 
 
@@ -59,16 +58,16 @@ def try_out_animation():
 
 if __name__ == "__main__":
     main()
-    bead = Bead(0, [1, 1, 1])
-    tdf_bead = ThreeDegreesOfFreedomBead(1, [1, 1, 1], 1.0)
+    bead_1 = Bead(0, [1, 1, 1], 1.0, False)
+    bead_2 = Bead(1, [1, 1, 1], 1.0, True)
     
     distance_bond = DistanceBond(0, 1)
 
     env = Environment()
-    env.add_bead(bead)
-    env.add_bead(tdf_bead)
+    env.add_bead(bead_1)
+    env.add_bead(bead_2)
     env.add_bond(distance_bond)
 
     print(f'env.get_beads() = {env.get_beads()}')
     
-    # try_out_animation()
+    try_out_animation()
