@@ -19,12 +19,12 @@ class DistanceBond : public Bond<Eigen2or3dVector> {
     public:
         DistanceBond(size_t bead_id_1, size_t bead_id_2) : Bond<Eigen2or3dVector>{bead_id_1, bead_id_2} {}
 
-        double potential() {
+        double potential() override {
             auto pos_diff = this->beads_position_diff();
             return k * std::pow(pos_diff.norm() - r0, 2.0);
         }
 
-        void apply_forces() {
+        void apply_forces() override {
             bool is_mobile_1 = this->bead_1_->is_mobile();
             bool is_mobile_2 = this->bead_2_->is_mobile();
             if (!is_mobile_1 && !is_mobile_2) {
@@ -42,7 +42,7 @@ class DistanceBond : public Bond<Eigen2or3dVector> {
             }
         }
 
-        void apply_torques() {
+        void apply_torques() override {
             return;
         }
 

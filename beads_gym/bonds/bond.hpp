@@ -36,15 +36,15 @@ class Bond {
             return bead_2_id_;
         }       
 
-        double potential() {
+        virtual double potential() {
             return 0.0d;
         }
 
-        void apply_forces() {
+        virtual void apply_forces() {
             return;
         }
 
-        void apply_torques() {
+        virtual void apply_torques() {
             return;
         }
 
