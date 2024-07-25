@@ -20,5 +20,6 @@ PYBIND11_MODULE(environment, m) {
       .def(py::init<>())
       .def("add_bead", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead)
       .def("add_bond", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bond)
-      .def("get_beads", &::beads_gym::environment::Environment<Eigen::Vector3d>::get_beads);
+      .def("get_beads", &::beads_gym::environment::Environment<Eigen::Vector3d>::get_beads)
+      .def("step", &::beads_gym::environment::Environment<Eigen::Vector3d>::step);
 }

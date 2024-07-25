@@ -28,7 +28,7 @@ def main(cfg: DictConfig) -> None:
     print(cfg)
 
 
-def try_out_animation():
+def try_out_animation(env):
     grid_size_x, grid_size_y = 4, 3
     gs = gridspec.GridSpec(grid_size_x, grid_size_y)
     fig_x = 16
@@ -40,25 +40,35 @@ def try_out_animation():
     )
     
     ax0 = fig.add_subplot(gs[:grid_size_x, :grid_size_y], projection="3d", facecolor=(0.9, 0.9, 0.9))
-    x = np.random.randn(1)
-    y = np.random.randn(1)
-    z = np.random.randn(1)
-    cloud = ax0.plot(x, y, z, 'b', linewidth=1, label='reference')
+    positions = np.r_[[bead.get_position() for bead in env.get_beads()]]
+    x, y, z = positions.T
+    # scatter = ax0.scatter(x, y, z, 'b', linewidth=10, label='reference')
+    plot, = ax0.plot(x, y, z, 'b', linewidth=1, label='bonds')
+    scatter = ax0.scatter([], [], [], 'b', linewidth=10, label='beads')
+    scatter3d = ax0.scatter3D([], [], [], 'b', linewidth=10, label='beads')
+    from mpl_toolkits.mplot3d.art3d import Path3DCollection, Line3D
     
     def update(num):
-        x = np.random.randn(100)
-        y = np.random.randn(100)
-        z = np.random.randn(100)
-        cloud = ax0.plot(x, y, z, 'b', linewidth=1, label='reference')
-        return cloud
+        beads = env.get_beads()
+        positions = np.r_[[bead.get_position() for bead in beads]]
+        x, y, z = positions.T
+        plot.set_xdata(x)
+        plot.set_ydata(y)
+        plot.set_3d_properties(z)
+        scatter.set_offsets(positions[:, :2])
+        scatter.set_3d_properties(positions[:, 2], zdir='z')
+        # scatter = ax0.scatter(x, y, z, 'b', linewidth=10, label='reference')
+        env.step()
+        return scatter, plot
     
-    ani = animation.FuncAnimation(fig, update, frames=20000, interval=1, repeat=True, blit=True)
+    ani = animation.FuncAnimation(fig, update, frames=200, interval=10, repeat=False, blit=True)
+    # ani.save("a.mp4", writer="ffmpeg")
     plt.show()
 
 
 if __name__ == "__main__":
     main()
-    bead_1 = Bead(0, [1, 1, 1], 1.0, False)
+    bead_1 = Bead(0, [0, 0, 0], 1.0, True)
     bead_2 = Bead(1, [1, 1, 1], 1.0, True)
     
     distance_bond = DistanceBond(0, 1)
@@ -70,4 +80,4 @@ if __name__ == "__main__":
 
     print(f'env.get_beads() = {env.get_beads()}')
     
-    try_out_animation()
+    try_out_animation(env)

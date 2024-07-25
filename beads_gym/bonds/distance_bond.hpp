@@ -35,10 +35,10 @@ class DistanceBond : public Bond<Eigen2or3dVector> {
             auto force = 2.0 * k * (pos_diff.norm() - r0) * pos_diff.normalized();
             
             if (is_mobile_1) {
-                this->bead_1_->add_force(force);
+                this->bead_1_->add_force(-force);
             }
             if (is_mobile_2) {
-                this->bead_2_->add_force(-force);
+                this->bead_2_->add_force(force);
             }
         }
 

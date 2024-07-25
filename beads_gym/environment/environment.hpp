@@ -42,6 +42,7 @@ class Environment {
         }
         integrator_.step(beads_);
       }
+      
       void reset() { std::cout << "Environment reset" << std::endl; }
 
       std::vector<std::shared_ptr<BeadType>> get_beads() const { return beads_; }
