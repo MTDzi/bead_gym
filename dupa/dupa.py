@@ -12,6 +12,7 @@ from omegaconf import DictConfig, OmegaConf
 from beads_gym.environment.environment import Environment
 from beads_gym.beads.beads import Bead
 from beads_gym.bonds.bonds import DistanceBond
+from beads_gym.environment.reward.reward import Reward
 
 
 def parse_args():
@@ -57,27 +58,35 @@ def try_out_animation(env):
         plot.set_3d_properties(z)
         scatter.set_offsets(positions[:, :2])
         scatter.set_3d_properties(positions[:, 2], zdir='z')
-        # scatter = ax0.scatter(x, y, z, 'b', linewidth=10, label='reference')
-        env.step()
+        env.step({0: np.random.normal(size=3), 1: np.random.normal(size=3)})
         return scatter, plot
     
-    ani = animation.FuncAnimation(fig, update, frames=200, interval=10, repeat=False, blit=True)
-    # ani.save("a.mp4", writer="ffmpeg")
-    plt.show()
+    ani = animation.FuncAnimation(fig, update, frames=500, interval=10, repeat=False, blit=True)
+    ani.save("a.mp4", writer="ffmpeg")
+    # plt.show()
 
 
 if __name__ == "__main__":
     main()
+    
+    env = Environment()
+    
     bead_1 = Bead(0, [0, 0, 0], 1.0, True)
     bead_2 = Bead(1, [1, 1, 1], 1.0, True)
-    
-    distance_bond = DistanceBond(0, 1)
-
-    env = Environment()
     env.add_bead(bead_1)
     env.add_bead(bead_2)
+    
+    distance_bond = DistanceBond(0, 1)
     env.add_bond(distance_bond)
+    
+    reference_beads = [
+        Bead(2, [-1, -1, -1], 1.0, False),
+        Bead(3, [2, 2, 2], 1.0, False),
+    ]
+    reward = Reward(reference_beads)
+    env.add_reward(reward)
 
     print(f'env.get_beads() = {env.get_beads()}')
+    print(f'env.get_bonds()[0].get_velocity() = {env.get_beads()[0].get_velocity()}')
     
     try_out_animation(env)

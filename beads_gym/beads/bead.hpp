@@ -53,6 +53,7 @@ class Bead {
       Eigen2or3dVector get_velocity() const { return velocity_; }
   
       Eigen2or3dVector get_acceleration() const { return force_ / mass_; }
+      void add_acceleration(const Eigen2or3dVector& acceleration) { acceleration_ += acceleration; }
 
       void add_force(const Eigen2or3dVector& force) { force_ += force; }
       void zero_out_force() { force_ = Eigen2or3dVector::Zero(); }

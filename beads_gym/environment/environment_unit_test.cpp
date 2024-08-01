@@ -28,7 +28,8 @@ TEST(EnvironmentTest, EnvironmentConstructor) {
 
   std::cout << "Bead 0 position BEFORE: " << environment.get_beads().at(1).get()->get_position() << std::endl;
 
-  environment.step();
+  std::map<size_t, std::vector<double>> action = {{1, {1.0, 0.0, 0.0}}}; 
+  environment.step(action);
 
   std::cout << "Bead 0 position AFTER: " << environment.get_beads().at(1).get()->get_position() << std::endl;
 

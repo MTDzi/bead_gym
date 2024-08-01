@@ -10,6 +10,7 @@
 #include "beads_gym/beads/bead.hpp"
 #include "beads_gym/bonds/bond.hpp"
 #include "beads_gym/environment/integrator/integrator.hpp"
+#include "beads_gym/environment/reward/reward.hpp"
 
 namespace beads_gym::environment {
 
@@ -18,6 +19,7 @@ class Environment {
 
   using BeadType = beads_gym::beads::Bead<Eigen2or3dVector>;
   using BondType = beads_gym::bonds::Bond<Eigen2or3dVector>;
+  using RewardType = beads_gym::environment::reward::Reward<Eigen2or3dVector>;
 
   public:
       Environment() : integrator_{integrator::Integrator<Eigen2or3dVector>(0.01)} {};
@@ -36,10 +38,29 @@ class Environment {
         bonds_.push_back(bond);
       }
 
-      void step() {
+      void add_reward(std::shared_ptr<RewardType> reward) {
+        rewards_.push_back(reward);
+      }
+
+      void step(std::map<size_t, std::vector<double>>& action) {
         for (auto& bond : bonds_) {
           bond->apply_forces();
         }
+
+        // Now for the actuators
+        for (auto& bead_id : action) {
+          auto bead = beads_map_[bead_id.first];
+          bead->add_force(
+            bead->get_mass() * Eigen2or3dVector{bead_id.second[0], bead_id.second[1], bead_id.second[2]}
+          );
+        }
+
+        // Now for the gravity
+        for (auto& bead : beads_) {
+          bead->add_force(Eigen2or3dVector{0.0, 0.0, -gravity_ * bead->get_mass()});
+        }
+
+        // Finally, we can step the integrator
         integrator_.step(beads_);
       }
       
@@ -52,6 +73,8 @@ class Environment {
         std::map<size_t, std::shared_ptr<BeadType>> beads_map_;
         std::vector<std::shared_ptr<BondType>> bonds_;
         integrator::Integrator<Eigen2or3dVector> integrator_;
+        std::vector<std::shared_ptr<RewardType>> rewards_;
+        constexpr static double gravity_ = 9.81;
 };
 
 } // namespace beads_gym.environment
