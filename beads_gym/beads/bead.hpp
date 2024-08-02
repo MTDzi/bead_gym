@@ -42,22 +42,22 @@ class Bead {
 
       double get_mass() const { return mass_; }
 
+      Eigen2or3dVector get_position() const { return position_; }
       void set_position(const Eigen2or3dVector& position) {
         prev_position_ = position_;
         position_ = position;
       }
-      Eigen2or3dVector get_position() const { return position_; }
       Eigen2or3dVector get_prev_position() const { return prev_position_; }
   
-      void set_velocity(const Eigen2or3dVector& velocity) { velocity_ = velocity; }
       Eigen2or3dVector get_velocity() const { return velocity_; }
+      void set_velocity(const Eigen2or3dVector& velocity) { velocity_ = velocity; }
   
       Eigen2or3dVector get_acceleration() const { return force_ / mass_; }
       void add_acceleration(const Eigen2or3dVector& acceleration) { acceleration_ += acceleration; }
 
+      Eigen2or3dVector get_force() const { return force_; }
       void add_force(const Eigen2or3dVector& force) { force_ += force; }
       void zero_out_force() { force_ = Eigen2or3dVector::Zero(); }
-      Eigen2or3dVector get_force() const { return force_; }
     
       size_t get_id() const { return id_; }
 

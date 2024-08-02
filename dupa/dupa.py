@@ -71,8 +71,8 @@ if __name__ == "__main__":
     
     env = Environment()
     
-    bead_1 = Bead(0, [0, 0, 0], 1.0, True)
-    bead_2 = Bead(1, [1, 1, 1], 1.0, True)
+    bead_1 = Bead(0, [0, 0, 0], 1.0, False)
+    bead_2 = Bead(1, [0, 0, 1], 1.0, True)
     env.add_bead(bead_1)
     env.add_bead(bead_2)
     

@@ -1,35 +1,38 @@
 # Introduction
-The Environment is built from: Beads, Bonds, and Volumes.
+The Environment is built from: Beads, Bonds, Walls, Force Fields, and RewardCalculators.
 
-They are used to define the state (Beads joined with Bonds) as well as the reward (e.g., a path comprising non-material Beads connected with non-interactive Bonds).
+A **Bead** is like an atom -- it has a position and an orientation, and can form **Bonds** with other Beads. Those Bonds can maintain a distance or a relative orientation of two Beads, as well as work as a repulsive interaction. The **Walls** are planes (for 3d) or lines (for 2d)  which cause the Beads to bounce off (if the collision is 100% elastic) or to partially dissipate their energy (not implemented yet). The **Force Field** is a volume in which either some additonal potential is being applied to the Beads and / or some random variation to the accelerations of the Beads is going to be applied (not implemented yet, but this is an important element as I'd like to be able to model turbulence).
 
 Everything is in 3D, although during implementation I'll try to write it such that it's always possible to adapt it for a 2D application. 
 
-The **main use-case I'm thinkin about** is an environment for a quadrotor flying along a pre-defined path ("3D race track"). Not that exciting, but actually: the main source of inspiration was this drone from Red Bull that is capable of following an F1 car: https://youtu.be/9pEqyr_uT-k?si=XT6pCsmlhHApGAiA 
+The **main use-case I'm thinkin about** is an environment for a quadrotor flying along a pre-defined path ("3D race track"). The main source of inspiration was this drone from Red Bull that is capable of following an F1 car: https://youtu.be/9pEqyr_uT-k?si=XT6pCsmlhHApGAiA 
 I'd like to be able to have a race of these types of drones, flying through volumes of turbulant air, to have the chassis of the drone vibrate due to falling into resonance.
 
 A **more advanced use-case** I can foresee is a race invoving several quadrotors flying along a pre-defined path, but with obstacles / walls / etc. The quadrotors can bump against each other and the obstacles.
+
+A **minimal use-case** is to have a 3D pendulum composed of two Beads connected by a spring Bond, in which we have control over the bottom Bead, and the objective is to hold the second Bead standing straight up above the first Bead.
 
 Also, a **side use-case** could be a similar race to the one described above, but happening in 2D, and in this case the actuators would require implementing a vehicle dynamics model, so I'm not going to push for that too soon.
 
 
 # Beads
-There are Beads that can only move in 3D (3 Degrees of Freedom, or: 3 DoF), there are those that can't even  move, there are those that can also rotate (thus having 6 DoF), and those that are "ghost Beads" serving only as a building block for the reward function (or as a waypoint). There are also Beads that can be a source of force and torque, which makes them a kind of "actuator Beads" through which the agent will be able to change the state of the Environment.
+A Beads can move in space (or not, if the `is_mobile` attribute is `false`), but some of them have also an orientation so they can "spin".
 
-Beads can be grouped into Entities such that within it, the Beads interact only via the Bonds defined for them, but no "repulsive Bonds" will be formed even if they come very close.
+Beads can be grouped into Entities (not implemented yet) such that within it, the Beads interact only via the Bonds defined for them, but no "repulsive Bonds" will be formed even if they come very close.
 
 
 # Bonds
-Some Bonds are defined when forming the Environment, some get created / deleted in the course of the Simulation. For now, I'm assuming all Bonds are composed of **two** **entities**. Meaning: I don't consider "angular bonds" made up of, say, three Beads. And about the entities: Within a Bond one element needs to be a Bead, the other one can be a Bead or: a Pose, a Position, or a Volume (floor, turbulent air, slippery surface, etc.). Bonds may define the relative length between Beads, their relative orientation, but we can also have Bonds that cause a Bead to be close to a Position, or a Pose. There are also "repulsive Bonds" that are created when two Beads from two different Entities come too close (as mentioned above) and these Bonds can be a source of force acting on the pairs of Beads being in contact, but also: a source of torque. Initially, I was thinking that the repulsion should have some asymptotic behavior, but then I realized that might cause the force to "explode". So now I'm thinking it's going to be a steep function, but with a smooth peak (maybe a very narrow Gaussian?). Same goes for the torque: I wouldn't want the torque to "explode" if the centers of the two interacting Beads are very very close to each other.
-
-Each Bond defines a "potential function" or: a "force field" (FF) from which we need to extract the force / torque acting on the Beads. Not sure which tool to use for defining the gradients of those FFs
+Each Bond defines a "potential function" from which we need to extract the force / torque acting on **two** Beads. Not sure which tool to use for defining the gradients of those potentials, currently I'm manually injecting that into the classes.
 
 
-# Volumes
+# Wall
 For now, I can definitely imagine:
-* a floor-like Volume, i.e., one ensuring objects can take off from the floor, but I'm guessing obstacle definition could make use of this
-* a high-turbulance Volume in which random forces are applied to each Bead (Langevin Dynamics)
+* a floor-like Wall, i.e., one ensuring objects can take off from the floor
+* sections of surfaces / lines used to define obstacles
 * a tube along a list of waypoints is foreseeable. Nothing more concrete for now.
+
+# Force Fields
+I'm thinking about a high-turbulance volume in which random forces are applied to each Bead (like a Langevin Dynamics), and the strength of those turbulances might be proportional to the speed of the Bead.
 
 
 # Force calculation
@@ -37,7 +40,7 @@ Once we have the updated list of Bonds, we can go through them (in parallel, per
 
 
 # Reward
-With all the above we should be in good shape to define the State and to run the Simulation. But we also need to return the reward. The idea is to be able to incur cost with the Volumes and actual reward with some relation to the Beads and Bonds between them. E.g., for racing: the reward comes from progressing along the "centerline" defined by the sequence of "ghost Beads" and their non-interacting Bonds.
+With all the above we should be in good shape to define the state and to run the simulation. But we also need to return the reward. The idea is to be able to incur cost with the Volumes and actual reward with some relation to the Beads and Bonds between them. E.g., for racing: the reward comes from progressing along the "centerline" defined by the sequence of Beads that are not part of the Environment, i.e. they don't interact with the Environment's Beads.
 
 
 # UML charts
@@ -47,43 +50,30 @@ Requires `myml.vscode-markdown-plantuml-preview` and `bat67.markdown-extension-p
 ```plantuml
 @startuml
 
-abstract class Bead {
-- position: Vec3d
-    - orientation: Vec3d
-    - radius: double
-}
+class Bead {
+    + Bead(id: int, position: List[double] | Vec3d, mass: double, is_mobile: bool):
 
-class GhostBead {
-    
-}
-
-class StationaryBead {
-    
-}
-
-class ThreeDegreeOfFreedomBead {
+    - id: int
     - mass: double
+    - position: Vec3d
+    - prev_position: Vec3d  // Used in the Integrator
     - velocity: Vec3d
-    - acceleration: Vec3d
-    + add_forces(force: Vec3d): void
-    + update_position(change: Vec3d): void
-    + update_velocity(change: Vec3d): void
+    - orientation: Vec3d
 
+    + get_id(): int
+    + get_mass(): double
+    + get_position(): Vec3d
+    + set_position(Vec3d):
+    + get_prev_position(): Vec3d
+    + get_velocity(): Vec3d
+    + set_velocity(Vec3d): 
+    + get_acceleration(): Vec3d
+    + add_acceleration(Vec3d):
+    + get_force(): Vec3d 
+    + add_force(Vec3d):
+    + zero_out_force():
+    + is_mobile(): bool
 }
-
-class SixDegreeOfFreedomBead {
-    - moment_of_inertia: Mat3x3
-    - angular_velocity: Vec3d
-    - angular_acceleration: Vec3d
-    + update_orientation(change: Vec3d): void
-    + update_angular_velocity(change: Vec3d): void
-}
-
-Bead <|-- GhostBead
-Bead <|-- StationaryBead
-Bead <|-- ThreeDegreeOfFreedomBead
-ThreeDegreeOfFreedomBead <|-- SixDegreeOfFreedomBead
-
 @enduml
 ```
 
@@ -92,14 +82,37 @@ What about the Environment?
 @startuml
 
 class Environment {
+    + Environment(): 
+
     - beads: List[Bead]
+    - beads_map: Map[int, Bead]
+    - bonds: List[Bond]
+    - rewards: List[RewardCalculator]
     - integrator: Integrator
+
+    + add_bead(Bead):
+    + add_bond(Bond):
+    + add_reward_calculator(RewardCalculator):
+    + get_beads(): List[Bead]
+
+    + step(Map[int, List[double]]): List[double]
+
+    + reset(): 
+}
+
+class RewardCalculator {
+    + Reward(reference_beads: List[Bead]):
+
+    + calculate_reward(environment_beads: List[Beads]): double
 }
 
 class Integrator {
     - dt: double
-    - step(beads: List[beads]): void
+    + step(beads: List[beads]): void
 }
+
+Environment "1" -- "1.." RewardCalculator: contains
+Environment "1" -- "1" Integrator: contains
 
 @enduml
 ```
@@ -108,40 +121,28 @@ What about the Bonds?
 ```plantuml
 @startuml
 
-class Bond {
-    potential(): double
-    force(): void
-    torque(): void
-}
+abstract class Bond {
+    - one: Bead
+    - two: Bead
 
-class TwoBeadsBond {
-    one: Bead
-    two: Bead
+    + potential(): double
+    + apply_forces(): void
+    + torque(): void
 }
 
 class DistanceBond {
-
+    // Imitating a spring connecting two Beads
+    - beads_position_diff(): Vec3d
 }
 
 class RepulsionBond {
-
+    // Created dynamically, when two Beads not
+    //  connected by any other way AND being from two
+    //  separate entities come too close together
 }
 
-class EarthSurfaceBond {
-    bead: Bead
-    // Can be done better with a Volume
-    // volume: Volume
-}
-
-class EarthsGravitationalPullBond {
-    bead: Bead
-}
-
-Bond <|-- TwoBeadsBond
-TwoBeadsBond <|-- DistanceBond
-TwoBeadsBond <|-- RepulsionBond
-Bond <|-- EarthSurfaceBond
-Bond <|-- EarthsGravitationalPullBond
+Bond <|-- DistanceBond
+Bond <|-- RepulsionBond
 
 @enduml
 ```
