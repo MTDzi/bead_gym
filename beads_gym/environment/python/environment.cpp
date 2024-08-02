@@ -19,7 +19,7 @@ PYBIND11_MODULE(environment, m) {
     m.doc() = "environment module"; // optional module docstring
 
     // Class Environment
-    py::class_<::beads_gym::environment::Environment<Eigen::Vector3d>, std::shared_ptr<beads_gym::environment::Environment<Eigen::Vector3d>>>(m, "Environment")
+    py::class_<::beads_gym::environment::Environment<Eigen::Vector3d>, std::shared_ptr<beads_gym::environment::Environment<Eigen::Vector3d>>>(m, "EnvironmentCpp")
       .def(py::init<>())
       .def("add_bead", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead)
       .def("add_bond", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bond)

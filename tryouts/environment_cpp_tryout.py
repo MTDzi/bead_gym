@@ -9,7 +9,7 @@ plt.switch_backend('TkAgg')
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
-from beads_gym.environment.environment import Environment
+from beads_gym.environment.environment import EnvironmentCpp
 from beads_gym.beads.beads import Bead
 from beads_gym.bonds.bonds import DistanceBond
 from beads_gym.environment.reward.reward import Reward
@@ -22,7 +22,7 @@ def parse_args():
 
 
 
-@hydra.main(config_path="conf", config_name="dupa")
+@hydra.main(config_path="conf", config_name="environment_cpp_tryout")
 def main(cfg: DictConfig) -> None:
     bead_cfg_dict = OmegaConf.to_container(cfg.beads[0], resolve=True)
     some_initialized_bead = hydra.utils.instantiate(bead_cfg_dict)
@@ -69,7 +69,7 @@ def try_out_animation(env):
 if __name__ == "__main__":
     main()
     
-    env = Environment()
+    env = EnvironmentCpp()
     
     bead_1 = Bead(0, [0, 0, 0], 1.0, False)
     bead_2 = Bead(1, [0, 0, 1], 1.0, True)
