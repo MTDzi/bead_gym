@@ -15,7 +15,7 @@ namespace py = pybind11;
 //PYBIND11_MAKE_OPAQUE(std::vector<std::pair<int, int>>);
 //PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::pair<int, int>>>);
 
-PYBIND11_MODULE(environment, m) {
+PYBIND11_MODULE(environment_cpp, m) {
     m.doc() = "environment module"; // optional module docstring
 
     // Class Environment

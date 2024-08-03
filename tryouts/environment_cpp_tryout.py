@@ -1,4 +1,5 @@
 import argparse
+from time import perf_counter
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ plt.switch_backend('TkAgg')
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
-from beads_gym.environment.environment import EnvironmentCpp
+from beads_gym.environment.environment_cpp import EnvironmentCpp
 from beads_gym.beads.beads import Bead
 from beads_gym.bonds.bonds import DistanceBond
 from beads_gym.environment.reward.reward import Reward
@@ -61,7 +62,7 @@ def try_out_animation(env):
         env.step({0: np.random.normal(size=3), 1: np.random.normal(size=3)})
         return scatter, plot
     
-    ani = animation.FuncAnimation(fig, update, frames=500, interval=10, repeat=False, blit=True)
+    ani = animation.FuncAnimation(fig, update, frames=250, interval=10, repeat=False, blit=True)
     ani.save("a.mp4", writer="ffmpeg")
     # plt.show()
 
@@ -90,3 +91,10 @@ if __name__ == "__main__":
     print(f'env.get_bonds()[0].get_velocity() = {env.get_beads()[0].get_velocity()}')
     
     try_out_animation(env)
+    
+    num_steps = 10000
+    one_action = {0: np.random.normal(size=3), 1: np.random.normal(size=3)}
+    start = perf_counter()
+    for i in range(num_steps):
+        env.step(one_action)
+    print(f'One steps took on average: {1000 * (perf_counter() - start) / num_steps} [ms]')
