@@ -1,0 +1,21 @@
+{
+    "configurations": [
+      {
+        "name": "Your Project Name",
+        "includePath": [
+          "${workspaceFolder}/**" // This includes all files in your workspace
+        ],
+        "browse": {
+          "path": [    
+          ],
+          "limitSymbolsToIncludedHeaders": true,
+          "databaseFilename": ""
+        },
+        "intelliSenseMode": "clang-x64",
+        "compilerPath": "/usr/bin/g++",
+        "cStandard": "c11",
+        "cppStandard": "c++17"
+      }
+    ],
+    "version": 4
+  }

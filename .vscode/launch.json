@@ -1,0 +1,148 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "all_beads_unit_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bazel-bin/beads_gym/beads/all_unit_tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                }
+            ]
+        },
+        {
+            "name": "all_environment_unit_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bazel-bin/beads_gym/environment/all_unit_tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                }
+            ]
+        },
+        {
+            "name": "all_integrator_unit_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bazel-bin/beads_gym/environment/integrator/all_unit_tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                }
+            ]
+        },
+        {
+            "name": "all_bonds_unit_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bazel-bin/beads_gym/bonds/all_unit_tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                }
+            ]
+        },
+        {
+            "name": "all_reward_unit_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bazel-bin/beads_gym/environment/reward/all_unit_tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                }
+            ]
+        },
+        {
+            "name": "Python C++ Debugger",
+            "type": "pythoncpp",
+            "request": "launch",
+            "pythonLaunchName": "Python: Current File",
+            "cppAttachName": "(gdb) Attach"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "(gdb) Attach",
+            "type": "cppdbg",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug setup.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/setup.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "args": [
+                "install",
+            ],
+        },
+        {
+            "name": "Run environment_cpp_tryout.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tryouts/environment_cpp_tryout.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
