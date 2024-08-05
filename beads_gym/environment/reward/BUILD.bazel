@@ -1,21 +1,28 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "foo",
-    srcs = ["foo.cpp"],
-    hdrs = ["foo.hpp"],
+    name = "reward",
+    srcs = [
+        "reward.cpp",
+    ],
+    hdrs = [
+        "reward.hpp",
+    ],
     copts = ["-Iexternal/eigen"],
     #strip_include_prefix = "include",
     visibility = ["//visibility:public"],
     deps = [
-        "@eigen"
+        "@eigen",
+        "//beads_gym/beads:beads",
+        "//beads_gym/bonds:bonds",
     ]
 )
 
 cc_test(
     name = "all_unit_tests",
     srcs = [
-        "foo_test.cpp",
+        "reward_unit_test.cpp",
+        "reward.cpp"
     ],
     features = [
         "treat_warnings_as_errors",
@@ -24,7 +31,8 @@ cc_test(
         "test_warnings",
     ],
     deps = [
-        ":foo",
+        ":reward",
         "@com_google_googletest//:gtest_main",
     ],
 )
+

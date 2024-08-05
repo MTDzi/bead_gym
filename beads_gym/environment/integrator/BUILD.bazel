@@ -1,0 +1,38 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "integrator",
+    srcs = [
+        "integrator.cpp",
+    ],
+    hdrs = [
+        "integrator.hpp",
+    ],
+    copts = ["-Iexternal/eigen"],
+    #strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@eigen",
+        "//beads_gym/beads:beads",
+        "//beads_gym/bonds:bonds",
+    ]
+)
+
+cc_test(
+    name = "all_unit_tests",
+    srcs = [
+        "integrator_unit_test.cpp",
+        "integrator.cpp"
+    ],
+    features = [
+        "treat_warnings_as_errors",
+        "strict_clang_tidy_warnings",
+        "strict_warnings",
+        "test_warnings",
+    ],
+    deps = [
+        ":integrator",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+

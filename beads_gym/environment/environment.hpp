@@ -24,7 +24,6 @@ class Environment {
   public:
       Environment() : integrator_{integrator::Integrator<Eigen2or3dVector>(0.01)} {};
       ~Environment() = default;
-    
 
       void add_bead(std::shared_ptr<BeadType> bead) {
         assert(beads_map_.find(bead->get_id()) == beads_map_.end() && "Bead with this ID already exists in the map!");

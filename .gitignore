@@ -1,13 +1,13 @@
-bazel-*
-build/
-build*/
-export/
-cache/
+beads_gym.egg-info/
 
-__pycache__
+*.pyc
+*.pyo
+*.pyd
+__pychache__
 
-# EDITORS
-.vs/
-.vscode/
-*.swp
-*.user
+bazel-bin
+bazel-out
+
+**.cpython-39-x86_64-linux-gnu.so
+beads_gym/todo.txt
+dist/
