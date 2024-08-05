@@ -9,5 +9,4 @@ bazel-bin
 bazel-out
 
 **.cpython-39-x86_64-linux-gnu.so
-beads_gym/todo.txt
 dist/
