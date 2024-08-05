@@ -27,8 +27,13 @@ class Environment {
 
       void add_bead(std::shared_ptr<BeadType> bead) {
         assert(beads_map_.find(bead->get_id()) == beads_map_.end() && "Bead with this ID already exists in the map!");
+
         beads_.push_back(bead);
         beads_map_[bead->get_id()] = bead;
+
+        auto bead_copy = *bead;
+        initial_beads_.push_back(std::make_shared<BeadType>(bead_copy));
+        initial_beads_map_[bead->get_id()] = initial_beads_.back();
       }
 
       void add_bond(std::shared_ptr<BondType> bond) {
@@ -63,17 +68,28 @@ class Environment {
         integrator_.step(beads_);
       }
       
-      void reset() { std::cout << "Environment reset" << std::endl; }
+      void reset() {
+          beads_.clear();
+          beads_map_.clear();
+
+          // Repopulate beads_ and beads_map_ from initial_beads_ and initial_beads_map_
+          for (const auto& bead : initial_beads_) {
+              beads_.push_back(bead);
+              beads_map_[bead->get_id()] = bead;
+          }
+      }
 
       std::vector<std::shared_ptr<BeadType>> get_beads() const { return beads_; }
 
     private:
+        constexpr static double gravity_ = 9.81;
         std::vector<std::shared_ptr<BeadType>> beads_;
         std::map<size_t, std::shared_ptr<BeadType>> beads_map_;
+        std::vector<std::shared_ptr<BeadType>> initial_beads_;
+        std::map<size_t, std::shared_ptr<BeadType>> initial_beads_map_;
         std::vector<std::shared_ptr<BondType>> bonds_;
         integrator::Integrator<Eigen2or3dVector> integrator_;
         std::vector<std::shared_ptr<RewardType>> rewards_;
-        constexpr static double gravity_ = 9.81;
 };
 
 } // namespace beads_gym.environment

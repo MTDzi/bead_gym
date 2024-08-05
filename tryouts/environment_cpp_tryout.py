@@ -44,11 +44,8 @@ def try_out_animation(env):
     ax0 = fig.add_subplot(gs[:grid_size_x, :grid_size_y], projection="3d", facecolor=(0.9, 0.9, 0.9))
     positions = np.r_[[bead.get_position() for bead in env.get_beads()]]
     x, y, z = positions.T
-    # scatter = ax0.scatter(x, y, z, 'b', linewidth=10, label='reference')
     plot, = ax0.plot(x, y, z, 'b', linewidth=1, label='bonds')
     scatter = ax0.scatter([], [], [], 'b', linewidth=10, label='beads')
-    scatter3d = ax0.scatter3D([], [], [], 'b', linewidth=10, label='beads')
-    from mpl_toolkits.mplot3d.art3d import Path3DCollection, Line3D
     
     def update(num):
         beads = env.get_beads()
@@ -59,7 +56,8 @@ def try_out_animation(env):
         plot.set_3d_properties(z)
         scatter.set_offsets(positions[:, :2])
         scatter.set_3d_properties(positions[:, 2], zdir='z')
-        env.step({0: np.random.normal(size=3), 1: np.random.normal(size=3)})
+        # env.step({0: np.random.normal(size=3), 1: np.random.normal(size=3)})
+        env.step({0: np.zeros(3), 1: np.zeros(3)})
         return scatter, plot
     
     ani = animation.FuncAnimation(fig, update, frames=250, interval=10, repeat=False, blit=True)
@@ -89,12 +87,13 @@ if __name__ == "__main__":
 
     print(f'env.get_beads() = {env.get_beads()}')
     print(f'env.get_bonds()[0].get_velocity() = {env.get_beads()[0].get_velocity()}')
-    
+
+    # num_steps = 10000
+    # one_action = {0: np.random.normal(size=3), 1: np.random.normal(size=3)}
+    # start = perf_counter()
+    # for i in range(num_steps):
+    #     env.step(one_action)
+    # print(f'One steps took on average: {(1_000_000 * (perf_counter() - start) / num_steps):.2f} [us]')
+    # env.reset()
+
     try_out_animation(env)
-    
-    num_steps = 10000
-    one_action = {0: np.random.normal(size=3), 1: np.random.normal(size=3)}
-    start = perf_counter()
-    for i in range(num_steps):
-        env.step(one_action)
-    print(f'One steps took on average: {1000 * (perf_counter() - start) / num_steps} [ms]')

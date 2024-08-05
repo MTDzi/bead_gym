@@ -1,3 +1,4 @@
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -25,5 +26,6 @@ PYBIND11_MODULE(environment_cpp, m) {
       .def("add_bond", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bond)
       .def("add_reward", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_reward)
       .def("get_beads", &::beads_gym::environment::Environment<Eigen::Vector3d>::get_beads)
-      .def("step", &::beads_gym::environment::Environment<Eigen::Vector3d>::step);
+      .def("step", &::beads_gym::environment::Environment<Eigen::Vector3d>::step)
+      .def("reset", &::beads_gym::environment::Environment<Eigen::Vector3d>::reset);
 }

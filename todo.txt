@@ -1,4 +1,3 @@
-- Implement Environment.reset (need to store initial state)
 - Return rewards from Environment.step
 
 - Implement a Wall (for the floor)

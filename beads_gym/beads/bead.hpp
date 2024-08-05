@@ -33,9 +33,8 @@ class Bead {
         assert(mass > 0);
         // Initialization logic is centralized here.
       }
-      // TODO: Not sure if we need these:
-      // Bead(const Bead&) = default;
-      // Bead(Bead&&) = default;
+      Bead(const Bead&) = default;
+      Bead(Bead&&) = default;
       Bead& operator=(const Bead&) = default;
       Bead& operator=(Bead&&) = default;
       ~Bead() = default;
