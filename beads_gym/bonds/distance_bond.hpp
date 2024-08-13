@@ -47,7 +47,7 @@ class DistanceBond : public Bond<Eigen2or3dVector> {
         }
 
     private:
-        double k = 1.0;
+        double k = 100.0;
         double r0 = 1.0;
 
         Eigen2or3dVector beads_position_diff() {

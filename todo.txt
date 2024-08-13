@@ -1,3 +1,5 @@
 - Return rewards from Environment.step
 
 - Implement a Wall (for the floor)
+
+- Rename all set_bead_1 and set_bead_2 to set_bead_a and set_bead_b

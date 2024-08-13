@@ -19,5 +19,6 @@ PYBIND11_MODULE(beads, m) {
       .def(py::init<size_t, std::vector<double>&, double, bool>(), py::arg("id"), py::arg("position"), py::arg("mass"), py::arg("is_mobile"))
       .def("set_position", &::beads_gym::beads::Bead<Eigen::Vector3d>::set_position)
       .def("get_position", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_position)
-      .def("get_velocity", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_velocity);
+      .def("get_velocity", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_velocity)
+      .def("get_acceleration", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_acceleration);
 }

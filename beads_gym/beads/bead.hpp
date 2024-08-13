@@ -45,6 +45,10 @@ class Bead {
       void set_position(const Eigen2or3dVector& position) {
         prev_position_ = position_;
         position_ = position;
+        // if (id_ == 0) {
+        //   position_[2] = 0.0;
+        // }
+        // position_[1] = 0.0;
       }
       Eigen2or3dVector get_prev_position() const { return prev_position_; }
   

@@ -28,5 +28,8 @@ PYBIND11_MODULE(bonds, m) {
         py::init<size_t, size_t>(),
         py::arg("bead_id_1"),
         py::arg("bead_id_2")
-      );
+      )
+      .def("potential", &beads_gym::bonds::DistanceBond<Eigen::Vector3d>::potential);
+      // .def("set_bead_1", &beads_gym::bonds::DistanceBond<Eigen::Vector3d>::set_bead_1)
+      // .def("set_bead_2", &beads_gym::bonds::DistanceBond<Eigen::Vector3d>::set_bead_2);
 }

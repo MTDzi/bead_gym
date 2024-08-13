@@ -21,7 +21,18 @@ class Reward {
       ~Reward() = default;
 
       double calculate_reward(std::vector<std::shared_ptr<BeadType>>& environment_beads) {
-        return 0.0;
+        // double sum_{0.0};
+        // for (auto& bead : environment_beads) {
+        //   sum_ += bead->get_velocity().norm();
+        // }
+        // return sum_;
+        double reward_ = 1.0;
+        double preferable_z_positions[] = {0, 1};
+        for (size_t i = 0; i < reference_beads_.size(); i++) {
+            double bead_z = environment_beads[i]->get_position().z();
+            reward_ -= std::min(std::abs(bead_z - preferable_z_positions[i]), 0.5);
+        }
+        return reward_;
       };
 
   private:

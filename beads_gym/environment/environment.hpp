@@ -7,6 +7,7 @@
 #include <cassert>
 
 #include <Eigen/Dense>
+
 #include "beads_gym/beads/bead.hpp"
 #include "beads_gym/bonds/bond.hpp"
 #include "beads_gym/environment/integrator/integrator.hpp"
@@ -42,11 +43,11 @@ class Environment {
         bonds_.push_back(bond);
       }
 
-      void add_reward(std::shared_ptr<RewardType> reward) {
-        rewards_.push_back(reward);
+      void add_reward_calculator(std::shared_ptr<RewardType> reward_calculator) {
+        reward_calculators_.push_back(reward_calculator);
       }
 
-      void step(std::map<size_t, std::vector<double>>& action) {
+      std::vector<double> step(std::map<size_t, std::vector<double>>& action) {
         for (auto& bond : bonds_) {
           bond->apply_forces();
         }
@@ -64,8 +65,15 @@ class Environment {
           bead->add_force(Eigen2or3dVector{0.0, 0.0, -gravity_ * bead->get_mass()});
         }
 
-        // Finally, we can step the integrator
+        // With all forces in place, we can step the integrator
         integrator_.step(beads_);
+
+        // Finally, we calculate the rewards
+        std::vector<double> rewards;
+        for (auto& reward_calculator : reward_calculators_) {
+          rewards.push_back(reward_calculator->calculate_reward(beads_));
+        }
+        return rewards;
       }
       
       void reset() {
@@ -74,12 +82,26 @@ class Environment {
 
           // Repopulate beads_ and beads_map_ from initial_beads_ and initial_beads_map_
           for (const auto& bead : initial_beads_) {
-              beads_.push_back(bead);
-              beads_map_[bead->get_id()] = bead;
+              auto bead_copy = std::make_shared<BeadType>(*bead);
+              beads_.push_back(bead_copy);
+              beads_map_[bead->get_id()] = bead_copy;
+          }
+
+          for (auto& bond : bonds_) {
+              bond->set_bead_1(beads_map_[bond->bead_1_id()]);
+              bond->set_bead_2(beads_map_[bond->bead_2_id()]);
           }
       }
 
       std::vector<std::shared_ptr<BeadType>> get_beads() const { return beads_; }
+
+      double calc_bond_potential() {
+        double potential_{0.0};
+        for (auto& bond : bonds_) {
+          potential_ += bond->potential();
+        }
+        return potential_;
+      }
 
     private:
         constexpr static double gravity_ = 9.81;
@@ -89,7 +111,7 @@ class Environment {
         std::map<size_t, std::shared_ptr<BeadType>> initial_beads_map_;
         std::vector<std::shared_ptr<BondType>> bonds_;
         integrator::Integrator<Eigen2or3dVector> integrator_;
-        std::vector<std::shared_ptr<RewardType>> rewards_;
+        std::vector<std::shared_ptr<RewardType>> reward_calculators_;
 };
 
 } // namespace beads_gym.environment

@@ -1,3 +1,4 @@
+import io
 import argparse
 from time import perf_counter
 
@@ -6,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.animation as animation
 plt.switch_backend('TkAgg')
+from PIL import Image
 
 import hydra
 from omegaconf import DictConfig, OmegaConf
@@ -46,6 +48,9 @@ def try_out_animation(env):
     x, y, z = positions.T
     plot, = ax0.plot(x, y, z, 'b', linewidth=1, label='bonds')
     scatter = ax0.scatter([], [], [], 'b', linewidth=10, label='beads')
+    ax0.set_xlim(-0.5, 0.5)
+    ax0.set_ylim(-0.5, 0.5)
+    ax0.set_zlim(0, 1.5)
     
     def update(num):
         beads = env.get_beads()
@@ -56,11 +61,16 @@ def try_out_animation(env):
         plot.set_3d_properties(z)
         scatter.set_offsets(positions[:, :2])
         scatter.set_3d_properties(positions[:, 2], zdir='z')
-        # env.step({0: np.random.normal(size=3), 1: np.random.normal(size=3)})
-        env.step({0: np.zeros(3), 1: np.zeros(3)})
+        # partial_rewards = env.step({0: np.random.normal(size=3), 1: np.random.normal(size=3)})
+        # partial_rewards = env.step({1: np.random.normal(size=3)})
+        # partial_rewards = env.step({1: np.zeros(3)})
+        # partial_rewards = env.step({0: np.array([5, 5, 5], dtype=float)})
+        # print(f'bead_1.position: {beads[1].get_position()}')
+        # print(f'reward = {sum(partial_rewards)}, potential = {env.calc_bond_potential()}')
+        # env.step({0: np.zeros(3), 1: np.zeros(3)})
         return scatter, plot
     
-    ani = animation.FuncAnimation(fig, update, frames=250, interval=10, repeat=False, blit=True)
+    ani = animation.FuncAnimation(fig, update, frames=500, interval=5, repeat=False, blit=True)
     ani.save("a.mp4", writer="ffmpeg")
     # plt.show()
 
@@ -70,10 +80,10 @@ if __name__ == "__main__":
     
     env = EnvironmentCpp()
     
-    bead_1 = Bead(0, [0, 0, 0], 1.0, False)
-    bead_2 = Bead(1, [0, 0, 1], 1.0, True)
+    bead_0 = Bead(0, [0, 0, 0], 1.0, False)
+    bead_1 = Bead(1, [0, 0, 0.9], 1.0, True)
+    env.add_bead(bead_0)
     env.add_bead(bead_1)
-    env.add_bead(bead_2)
     
     distance_bond = DistanceBond(0, 1)
     env.add_bond(distance_bond)
@@ -82,18 +92,25 @@ if __name__ == "__main__":
         Bead(2, [-1, -1, -1], 1.0, False),
         Bead(3, [2, 2, 2], 1.0, False),
     ]
-    reward = Reward(reference_beads)
-    env.add_reward(reward)
+    reward_calculator = Reward(reference_beads)
+    env.add_reward_calculator(reward_calculator)
 
     print(f'env.get_beads() = {env.get_beads()}')
     print(f'env.get_bonds()[0].get_velocity() = {env.get_beads()[0].get_velocity()}')
 
-    # num_steps = 10000
-    # one_action = {0: np.random.normal(size=3), 1: np.random.normal(size=3)}
-    # start = perf_counter()
-    # for i in range(num_steps):
-    #     env.step(one_action)
-    # print(f'One steps took on average: {(1_000_000 * (perf_counter() - start) / num_steps):.2f} [us]')
-    # env.reset()
+    num_steps = 10000
+    one_action = {0: np.random.normal(size=3), 1: np.random.normal(size=3)}
+    start = perf_counter()
+    for i in range(num_steps):
+        env.step(one_action)
+    print(f'One steps took on average: {(1_000_000 * (perf_counter() - start) / num_steps):.2f} [us]')
+    env.reset()
+    
+    one_action = {0: np.random.normal(size=3), 1: np.random.normal(size=3)}
+    start = perf_counter()
+    for i in range(num_steps):
+        env.step(one_action)
+    print(f'One steps took on average: {(1_000_000 * (perf_counter() - start) / num_steps):.2f} [us]')
+    env.reset()
 
     try_out_animation(env)

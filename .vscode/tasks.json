@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "bazel build -c dbg --cxxopt=\"-std=c++17\" --strip=never ...",
+            "command": "bazel build -c dbg --cxxopt=\"-std=c++17\" --strip=never //beads_gym/...",
             "group": {
                 "kind": "build",
                 "isDefault": true

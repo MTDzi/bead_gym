@@ -48,6 +48,7 @@ class Bond {
             return;
         }
 
+        virtual ~Bond() = default;
         
     protected:
         size_t bead_1_id_;
