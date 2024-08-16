@@ -12,12 +12,27 @@ from beads_gym.bonds.bonds import DistanceBond
 from beads_gym.environment.reward.reward import Reward
 
 
-REWARD_BOTTOM = -1
+REWARD_BOTTOM = 0
+
+
+
+def seed_everything(seed: int):
+    import random, os
+    import numpy as np
+    import torch
+    
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
 
 
 class BeadsCartPoleEnvironment:
     def __init__(self):
-        self.env_backend = EnvironmentCpp()
+        self.env_backend = EnvironmentCpp(0.01)
         bead_0 = Bead(0, [0, 0, 0], 1.0, True)
         bead_1 = Bead(1, [0, 0, 1], 1.0, True)
         self.env_backend.add_bead(bead_0)
@@ -121,7 +136,7 @@ class BeadsCartPoleEnvironment:
     
     @property
     def reward_range(self):
-        return Box(low=REWARD_BOTTOM, high=0.0, shape=(1,), dtype=np.float32)
+        return Box(low=REWARD_BOTTOM, high=1.0, shape=(1,), dtype=np.float32)
         
     @property
     def observation_space(self):
@@ -129,7 +144,9 @@ class BeadsCartPoleEnvironment:
     
     @property
     def action_space(self):
-        return Box(low=-20, high=20, shape=(3,), dtype=np.float32)
+        low = np.array([-5, -5, -5], dtype=np.float32)
+        high = np.array([5, 5, 40], dtype=np.float32)
+        return Box(low=low, high=high, shape=(3,), dtype=np.float32)  # TODO: check with 20 when it's 2D+
 
     def seed(self, seed=None):
-        pass
+        seed_everything(seed)

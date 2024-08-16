@@ -23,7 +23,7 @@ class Environment {
   using RewardType = beads_gym::environment::reward::Reward<Eigen2or3dVector>;
 
   public:
-      Environment() : integrator_{integrator::Integrator<Eigen2or3dVector>(0.01)} {};
+      Environment(double timestep) : integrator_{integrator::Integrator<Eigen2or3dVector>(timestep)} {};
       ~Environment() = default;
 
       void add_bead(std::shared_ptr<BeadType> bead) {

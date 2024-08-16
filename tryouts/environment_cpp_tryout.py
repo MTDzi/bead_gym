@@ -78,7 +78,7 @@ def try_out_animation(env):
 if __name__ == "__main__":
     main()
     
-    env = EnvironmentCpp()
+    env = EnvironmentCpp(0.01)
     
     bead_0 = Bead(0, [0, 0, 0], 1.0, False)
     bead_1 = Bead(1, [0, 0, 0.9], 1.0, True)

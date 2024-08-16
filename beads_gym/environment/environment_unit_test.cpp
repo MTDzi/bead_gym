@@ -14,7 +14,7 @@ namespace beads_gym::environment {
   
 TEST(EnvironmentTest, EnvironmentConstructor) {
 
-  Environment<Eigen::Vector3d> environment;
+  Environment<Eigen::Vector3d> environment{0.01};
   for (int i = 1; i < 10; ++i) {
     std::vector<double> position{static_cast<double>(i), static_cast<double>(-i), 1.0d / static_cast<double>(i)};
     Eigen::Vector3d position_3d{position.data()};
