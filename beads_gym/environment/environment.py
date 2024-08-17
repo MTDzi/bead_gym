@@ -51,6 +51,9 @@ class BeadsCartPoleEnvironment:
         self.env_backend.reset()
         self.count = 0
         self.videos.append([])
+        # bead_1 = self.env_backend.get_beads()[1]
+        # bead_1_pos = bead_1.get_position()
+        # bead_1.set_position(bead_1_pos + np.random.normal(loc=0, scale=0.001, size=len(bead_1_pos)))
         return self._state()
     
     def step(self, action):
@@ -145,8 +148,10 @@ class BeadsCartPoleEnvironment:
     @property
     def action_space(self):
         low = np.array([-5, -5, -5], dtype=np.float32)
-        high = np.array([5, 5, 40], dtype=np.float32)
-        return Box(low=low, high=high, shape=(3,), dtype=np.float32)  # TODO: check with 20 when it's 2D+
+        high = np.array([5, 5, 35], dtype=np.float32)
+        # low = -25
+        # high = 25
+        return Box(low=low, high=high, shape=(3,), dtype=np.float32)
 
     def seed(self, seed=None):
         seed_everything(seed)
