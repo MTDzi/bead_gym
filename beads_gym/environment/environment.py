@@ -63,8 +63,13 @@ class BeadsCartPoleEnvironment:
         new_state = self._state()
         # positions_and_velocities = new_state[[0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14]]
         # reward = 1 - np.linalg.norm(positions_and_velocities)
+        first_bead_position = new_state[:3]
         second_bead_position = new_state[9:12]
-        reward = 1 - np.linalg.norm(second_bead_position - np.array([0, 0, 1]))
+        reward = (
+            1
+            - np.linalg.norm(second_bead_position - np.array([0, 0, 1]))
+            - np.linalg.norm(first_bead_position - np.array([0, 0, 0]))
+        )
         self.count += 1
         truncated = (self.count == 1000)
         if truncated:
