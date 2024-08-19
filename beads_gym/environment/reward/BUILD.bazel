@@ -1,12 +1,12 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "reward",
+    name = "rewards",
     srcs = [
-        "reward.cpp",
+        "stay_close_reward.cpp",
     ],
     hdrs = [
-        "reward.hpp",
+        "stay_close_reward.hpp",
     ],
     copts = ["-Iexternal/eigen"],
     #strip_include_prefix = "include",
@@ -21,8 +21,8 @@ cc_library(
 cc_test(
     name = "all_unit_tests",
     srcs = [
-        "reward_unit_test.cpp",
-        "reward.cpp"
+        "stay_close_reward_unit_test.cpp",
+        "stay_close_reward.cpp"
     ],
     features = [
         "treat_warnings_as_errors",
@@ -31,7 +31,7 @@ cc_test(
         "test_warnings",
     ],
     deps = [
-        ":reward",
+        ":rewards",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -8,7 +8,7 @@ pybind_extension(
     visibility = ["//beads_gym:__subpackages__"],
     deps = [
         "//beads_gym/environment:environment",
-        "//beads_gym/environment/reward:reward",
+        "//beads_gym/environment/reward:rewards",
     ],
 )
 

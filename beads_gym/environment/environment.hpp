@@ -11,7 +11,7 @@
 #include "beads_gym/beads/bead.hpp"
 #include "beads_gym/bonds/bond.hpp"
 #include "beads_gym/environment/integrator/integrator.hpp"
-#include "beads_gym/environment/reward/reward.hpp"
+#include "beads_gym/environment/reward/stay_close_reward.hpp"
 
 namespace beads_gym::environment {
 
@@ -20,7 +20,7 @@ class Environment {
 
   using BeadType = beads_gym::beads::Bead<Eigen2or3dVector>;
   using BondType = beads_gym::bonds::Bond<Eigen2or3dVector>;
-  using RewardType = beads_gym::environment::reward::Reward<Eigen2or3dVector>;
+  using RewardType = beads_gym::environment::reward::StayCloseReward<Eigen2or3dVector>;
 
   public:
       Environment(double timestep) : integrator_{integrator::Integrator<Eigen2or3dVector>(timestep)} {};

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "beads_gym/environment/environment.hpp"
-#include "beads_gym/environment/reward/reward.hpp"
+#include "beads_gym/environment/reward/stay_close_reward.hpp"
 
 namespace py = pybind11;
 

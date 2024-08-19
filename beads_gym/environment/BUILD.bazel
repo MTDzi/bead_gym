@@ -16,7 +16,7 @@ cc_library(
         "//beads_gym/beads:beads",
         "//beads_gym/bonds:bonds",
         "//beads_gym/environment/integrator:integrator",
-        "//beads_gym/environment/reward:reward",
+        "//beads_gym/environment/reward:rewards",
     ]
 )
 

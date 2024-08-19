@@ -9,9 +9,11 @@ from PIL import Image
 from beads_gym.environment.environment_cpp import EnvironmentCpp
 from beads_gym.beads.beads import Bead
 from beads_gym.bonds.bonds import DistanceBond
-from beads_gym.environment.reward.reward import Reward
+from beads_gym.environment.reward.rewards import StayCloseReward
 
-REWARD_BOTTOM = 0
+
+REWARD_BOTTOM = -2
+
 
 
 def seed_everything(seed: int):
@@ -30,7 +32,6 @@ def seed_everything(seed: int):
 
 class BeadsCartPoleEnvironment:
     def __init__(self):
-        # TODO: make this configurable from hydra
         self.env_backend = EnvironmentCpp(0.01)
         bead_0 = Bead(0, [0, 0, 0], 1.0, True)
         bead_1 = Bead(1, [0, 0, 1], 1.0, True)
@@ -40,9 +41,9 @@ class BeadsCartPoleEnvironment:
         distance_bond = DistanceBond(0, 1)
         self.env_backend.add_bond(distance_bond)
         
-        reward_calculator = Reward({
+        reward_calculator = StayCloseReward({
             0: np.array([0, 0, 0]),
-            1: np.array([0, 0, 1])    
+            1: np.array([0, 0, 1]),
         })
         self.env_backend.add_reward_calculator(reward_calculator)
         self.count = 0
@@ -53,9 +54,6 @@ class BeadsCartPoleEnvironment:
         self.env_backend.reset()
         self.count = 0
         self.videos.append([])
-        # bead_1 = self.env_backend.get_beads()[1]
-        # bead_1_pos = bead_1.get_position()
-        # bead_1.set_position(bead_1_pos + np.random.normal(loc=0, scale=0.001, size=len(bead_1_pos)))
         return self._state()
     
     def step(self, action):
@@ -65,13 +63,13 @@ class BeadsCartPoleEnvironment:
         new_state = self._state()
         # positions_and_velocities = new_state[[0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14]]
         # reward = 1 - np.linalg.norm(positions_and_velocities)
-        first_bead_position = new_state[:3]
-        second_bead_position = new_state[9:12]
-        reward = (
-            1
-            - np.linalg.norm(second_bead_position - np.array([0, 0, 1]))
-            - np.linalg.norm(first_bead_position - np.array([0, 0, 0]))
-        )
+        # first_bead_position = new_state[:3]
+        # second_bead_position = new_state[9:12]
+        # reward = (
+        #     1
+        #     - np.linalg.norm(second_bead_position - np.array([0, 0, 1]))
+        #     - np.linalg.norm(first_bead_position - np.array([0, 0, 0]))
+        # )
         self.count += 1
         truncated = (self.count == 1000)
         if truncated:
@@ -146,7 +144,7 @@ class BeadsCartPoleEnvironment:
     
     @property
     def reward_range(self):
-        return Box(low=REWARD_BOTTOM, high=1.0, shape=(1,), dtype=np.float32)
+        return Box(low=REWARD_BOTTOM, high=0.0, shape=(1,), dtype=np.float32)
         
     @property
     def observation_space(self):
@@ -156,8 +154,6 @@ class BeadsCartPoleEnvironment:
     def action_space(self):
         low = np.array([-5, -5, -5], dtype=np.float32)
         high = np.array([5, 5, 35], dtype=np.float32)
-        # low = -25
-        # high = 25
         return Box(low=low, high=high, shape=(3,), dtype=np.float32)
 
     def seed(self, seed=None):
