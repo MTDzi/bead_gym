@@ -12,7 +12,7 @@ from beads_gym.bonds.bonds import DistanceBond
 from beads_gym.environment.reward.rewards import StayCloseReward
 
 
-REWARD_BOTTOM = -2
+REWARD_BOTTOM = -1
 
 
 
@@ -59,17 +59,8 @@ class BeadsCartPoleEnvironment:
     def step(self, action):
         action = {0: action}
         partial_rewards = self.env_backend.step(action)
-        reward = sum(partial_rewards)
+        reward = 1 + sum(partial_rewards)
         new_state = self._state()
-        # positions_and_velocities = new_state[[0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14]]
-        # reward = 1 - np.linalg.norm(positions_and_velocities)
-        # first_bead_position = new_state[:3]
-        # second_bead_position = new_state[9:12]
-        # reward = (
-        #     1
-        #     - np.linalg.norm(second_bead_position - np.array([0, 0, 1]))
-        #     - np.linalg.norm(first_bead_position - np.array([0, 0, 0]))
-        # )
         self.count += 1
         truncated = (self.count == 1000)
         if truncated:
@@ -99,7 +90,6 @@ class BeadsCartPoleEnvironment:
             ax0.set_xlim(-0.5, 0.5)
             ax0.set_ylim(-0.5, 0.5)
             ax0.set_zlim(0, 1.5)
-            # ax0.set_axis_off()
             
             buf = io.BytesIO()
             plt.savefig(buf, format="png")
@@ -107,13 +97,6 @@ class BeadsCartPoleEnvironment:
             
             img = Image.open(buf).convert("RGB")
             rgb_array = np.array(img)
-            # plt.imshow(rgb_array)
-            # plt.savefig(f'dupa_{self.count}.png')
-            # print(positions)
-            # print(
-            #     f'mean = {np.mean(rgb_array)} '
-            #     f'std = {np.std(rgb_array)} '
-            # )
             plt.close(fig)
             
             self.videos[-1].append(rgb_array)
@@ -144,7 +127,7 @@ class BeadsCartPoleEnvironment:
     
     @property
     def reward_range(self):
-        return Box(low=REWARD_BOTTOM, high=0.0, shape=(1,), dtype=np.float32)
+        return Box(low=REWARD_BOTTOM, high=1.0, shape=(1,), dtype=np.float32)
         
     @property
     def observation_space(self):

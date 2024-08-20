@@ -1,4 +1,5 @@
 import io
+import math
 import numpy as np
 from gym.spaces.box import Box
 
@@ -9,40 +10,41 @@ from PIL import Image
 from beads_gym.environment.environment_cpp import EnvironmentCpp
 from beads_gym.beads.beads import Bead
 from beads_gym.bonds.bonds import DistanceBond
-from beads_gym.environment.reward.reward import Reward
-
-REWARD_BOTTOM = 0
+from beads_gym.environment.reward.rewards import StayCloseReward
 
 
-def seed_everything(seed: int):
-    import random, os
-    import numpy as np
-    import torch
-    
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = True
+REWARD_BOTTOM = -16
 
 
-class BeadsCartPoleEnvironment:
+class BeadsQuadCopterEnvironment:
     def __init__(self):
-        # TODO: make this configurable from hydra
         self.env_backend = EnvironmentCpp(0.01)
-        bead_0 = Bead(0, [0, 0, 0], 1.0, True)
-        bead_1 = Bead(1, [0, 0, 1], 1.0, True)
+        bead_0 = Bead(0, [0.5, 0.5, 0], 1.0, True)
+        bead_1 = Bead(1, [-0.5, 0.5, 0], 1.0, True)
+        bead_2 = Bead(2, [-0.5, -0.5, 0], 1.0, True)
+        bead_3 = Bead(3, [0.5, -0.5, 0], 1.0, True)
         self.env_backend.add_bead(bead_0)
         self.env_backend.add_bead(bead_1)
+        self.env_backend.add_bead(bead_2)
+        self.env_backend.add_bead(bead_3)
         
-        distance_bond = DistanceBond(0, 1)
-        self.env_backend.add_bond(distance_bond)
+        distance_bonds = [
+            DistanceBond(0, 1),
+            DistanceBond(1, 2),
+            DistanceBond(2, 3),
+            DistanceBond(3, 0),
+            DistanceBond(0, 2, r0=math.sqrt(2)),
+            DistanceBond(1, 3, r0=math.sqrt(2)),
+        ]
         
-        reward_calculator = Reward({
-            0: np.array([0, 0, 0]),
-            1: np.array([0, 0, 1])    
+        for dist_bond in distance_bonds:
+            self.env_backend.add_bond(dist_bond)
+        
+        reward_calculator = StayCloseReward({
+            0: np.array([0.5, 0.5, 2.0]),
+            1: np.array([-0.5, 0.5, 2.0]),
+            2: np.array([-0.5, -0.5, 2.0]),
+            3: np.array([0.5, -0.5, 2.0]),
         })
         self.env_backend.add_reward_calculator(reward_calculator)
         self.count = 0
@@ -53,25 +55,18 @@ class BeadsCartPoleEnvironment:
         self.env_backend.reset()
         self.count = 0
         self.videos.append([])
-        # bead_1 = self.env_backend.get_beads()[1]
-        # bead_1_pos = bead_1.get_position()
-        # bead_1.set_position(bead_1_pos + np.random.normal(loc=0, scale=0.001, size=len(bead_1_pos)))
         return self._state()
     
     def step(self, action):
-        action = {0: action}
+        action = {
+            0: action[:3],
+            1: action[3:6],
+            2: action[6:9],
+            3: action[9:],    
+        }
         partial_rewards = self.env_backend.step(action)
-        reward = sum(partial_rewards)
+        reward = 16 + sum(partial_rewards)
         new_state = self._state()
-        # positions_and_velocities = new_state[[0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14]]
-        # reward = 1 - np.linalg.norm(positions_and_velocities)
-        first_bead_position = new_state[:3]
-        second_bead_position = new_state[9:12]
-        reward = (
-            1
-            - np.linalg.norm(second_bead_position - np.array([0, 0, 1]))
-            - np.linalg.norm(first_bead_position - np.array([0, 0, 0]))
-        )
         self.count += 1
         truncated = (self.count == 1000)
         if truncated:
@@ -101,7 +96,6 @@ class BeadsCartPoleEnvironment:
             ax0.set_xlim(-0.5, 0.5)
             ax0.set_ylim(-0.5, 0.5)
             ax0.set_zlim(0, 1.5)
-            # ax0.set_axis_off()
             
             buf = io.BytesIO()
             plt.savefig(buf, format="png")
@@ -109,13 +103,6 @@ class BeadsCartPoleEnvironment:
             
             img = Image.open(buf).convert("RGB")
             rgb_array = np.array(img)
-            # plt.imshow(rgb_array)
-            # plt.savefig(f'dupa_{self.count}.png')
-            # print(positions)
-            # print(
-            #     f'mean = {np.mean(rgb_array)} '
-            #     f'std = {np.std(rgb_array)} '
-            # )
             plt.close(fig)
             
             self.videos[-1].append(rgb_array)
@@ -129,7 +116,7 @@ class BeadsCartPoleEnvironment:
         ].flatten()
         state = np.r_[
             vectorized,
-            np.linalg.norm(vectorized[:3] - vectorized[9:12]),
+            # np.linalg.norm(vectorized[:3] - vectorized[9:12]),
         ]
         return state
         
@@ -146,7 +133,7 @@ class BeadsCartPoleEnvironment:
     
     @property
     def reward_range(self):
-        return Box(low=REWARD_BOTTOM, high=1.0, shape=(1,), dtype=np.float32)
+        return Box(low=REWARD_BOTTOM, high=16.0, shape=(1,), dtype=np.float32)
         
     @property
     def observation_space(self):
@@ -154,11 +141,9 @@ class BeadsCartPoleEnvironment:
     
     @property
     def action_space(self):
-        low = np.array([-5, -5, -5], dtype=np.float32)
-        high = np.array([5, 5, 35], dtype=np.float32)
-        # low = -25
-        # high = 25
-        return Box(low=low, high=high, shape=(3,), dtype=np.float32)
+        low = np.array(12 * [-5], dtype=np.float32)
+        high = np.array(4 * [5, 5, 20], dtype=np.float32)
+        return Box(low=low, high=high, shape=(4 * 3,), dtype=np.float32)
 
     def seed(self, seed=None):
-        seed_everything(seed)
+        pass

@@ -14,10 +14,10 @@ class Bead {
   // TODO: re-use constructor 2
   public:
       Bead() = delete;
-      Bead(size_t id, std::vector<double> &position, double mass, bool is_mobile)
+      Bead(size_t id, std::vector<double> &position, double mass, bool is_mobile, const std::vector<int> &constrained_axes = {})
         : id_(id), mass_(mass), velocity_(Eigen2or3dVector::Zero()), 
           acceleration_(Eigen2or3dVector::Zero()), force_(Eigen2or3dVector::Zero()),
-          is_mobile_(is_mobile) {
+          is_mobile_(is_mobile), constrained_axes_(constrained_axes) {
         // FIXME: re-use the other constructor 
         assert(mass > 0);
         position_ = Eigen2or3dVector(position.data());
@@ -25,11 +25,11 @@ class Bead {
         // Initialization logic is centralized here.
       }
 
-      Bead(size_t id, Eigen2or3dVector &position, double mass, bool is_mobile)
+      Bead(size_t id, Eigen2or3dVector &position, double mass, bool is_mobile, const std::vector<int> &constrained_axes = {})
         : id_(id), mass_(mass), position_{position}, prev_position_{position},
           velocity_(Eigen2or3dVector::Zero()),
           acceleration_(Eigen2or3dVector::Zero()), force_(Eigen2or3dVector::Zero()),
-          is_mobile_(is_mobile) {
+          is_mobile_(is_mobile), constrained_axes_(constrained_axes) {
         assert(mass > 0);
         // Initialization logic is centralized here.
       }
@@ -42,13 +42,12 @@ class Bead {
       double get_mass() const { return mass_; }
 
       Eigen2or3dVector get_position() const { return position_; }
-      void set_position(const Eigen2or3dVector& position) {
+      void set_position(const Eigen2or3dVector &position) {
         prev_position_ = position_;
         position_ = position;
-        // if (id_ == 0) {
-        //   position_[2] = 0.0;
-        // }
-        // position_[1] = 0.0;
+        for (size_t i = 0; i < constrained_axes_.size(); i++) {
+          position_(constrained_axes_[i]) = prev_position_(constrained_axes_[i]);
+        }
       }
       Eigen2or3dVector get_prev_position() const { return prev_position_; }
   
@@ -75,5 +74,6 @@ class Bead {
       Eigen2or3dVector acceleration_;
       Eigen2or3dVector force_;
       bool is_mobile_;
+      const std::vector<int> constrained_axes_;
   };
 } // namespace beads_gym.bead

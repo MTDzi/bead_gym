@@ -25,11 +25,11 @@ PYBIND11_MODULE(bonds, m) {
     
     py::class_<beads_gym::bonds::DistanceBond<Eigen::Vector3d>, ::beads_gym::bonds::Bond<Eigen::Vector3d>, std::shared_ptr<::beads_gym::bonds::DistanceBond<Eigen::Vector3d>>>(m, "DistanceBond")
       .def(
-        py::init<size_t, size_t>(),
+        py::init<size_t, size_t, double, double>(),
         py::arg("bead_id_1"),
-        py::arg("bead_id_2")
+        py::arg("bead_id_2"),
+        py::arg("k") = 100.0,
+        py::arg("r0") = 1.0
       )
       .def("potential", &beads_gym::bonds::DistanceBond<Eigen::Vector3d>::potential);
-      // .def("set_bead_1", &beads_gym::bonds::DistanceBond<Eigen::Vector3d>::set_bead_1)
-      // .def("set_bead_2", &beads_gym::bonds::DistanceBond<Eigen::Vector3d>::set_bead_2);
 }
