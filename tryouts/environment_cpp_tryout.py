@@ -43,7 +43,8 @@ def try_out_animation(env):
     
     ax0 = fig.add_subplot(gs[:grid_size_x, :grid_size_y], projection="3d", facecolor=(0.9, 0.9, 0.9))
     positions = np.r_[[bead.get_position() for bead in env.get_beads()]]
-    x, y, z = positions.T
+    positions_closed = np.r_[positions, positions[0]]
+    x, y, z = positions_closed.T
     plot, = ax0.plot(x, y, z, 'b', linewidth=1, label='bonds')
     scatter = ax0.scatter([], [], [], 'b', linewidth=10, label='beads')
     ax0.set_xlim(-0.5, 0.5)
