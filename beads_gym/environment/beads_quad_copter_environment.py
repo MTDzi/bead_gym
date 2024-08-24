@@ -22,6 +22,13 @@ class BeadsQuadCopterEnvironment:
             [-0.5, 0.5, 0],
             [-0.5, -0.5, 0],
             [0.5, -0.5, 0],
+            
+            # Extra Beads to make it stiffer
+            [0, 0, -0.25],
+            # [0, 0, 0.25],
+            
+            # And the bead on top
+            [0, 0, 1.25],
         ])
         for bead_id in range(len(self.initial_positions)):
             self.env_backend.add_bead(
@@ -33,8 +40,22 @@ class BeadsQuadCopterEnvironment:
             DistanceBond(1, 2, k=1000),
             DistanceBond(2, 3, k=1000),
             DistanceBond(3, 0, k=1000),
-            DistanceBond(0, 2, k=2000, r0=math.sqrt(2)),
-            DistanceBond(1, 3, k=2000, r0=math.sqrt(2)),
+            DistanceBond(0, 2, k=2000, r0=np.linalg.norm(self.initial_positions[0] - self.initial_positions[2])),
+            DistanceBond(1, 3, k=2000, r0=np.linalg.norm(self.initial_positions[1] - self.initial_positions[3])),
+            
+            DistanceBond(0, 4, k=1000, r0=np.linalg.norm(self.initial_positions[0] - self.initial_positions[4])),
+            DistanceBond(1, 4, k=1000, r0=np.linalg.norm(self.initial_positions[1] - self.initial_positions[4])),
+            DistanceBond(2, 4, k=1000, r0=np.linalg.norm(self.initial_positions[2] - self.initial_positions[4])),
+            DistanceBond(3, 4, k=1000, r0=np.linalg.norm(self.initial_positions[3] - self.initial_positions[4])),
+
+            # DistanceBond(0, 5, k=1000, r0=np.linalg.norm(self.initial_positions[0] - self.initial_positions[5])),
+            # DistanceBond(1, 5, k=1000, r0=np.linalg.norm(self.initial_positions[1] - self.initial_positions[5])),
+            # DistanceBond(2, 5, k=1000, r0=np.linalg.norm(self.initial_positions[2] - self.initial_positions[5])),
+            # DistanceBond(3, 5, k=1000, r0=np.linalg.norm(self.initial_positions[3] - self.initial_positions[5])),
+            
+            # DistanceBond(4, 5, k=2000, r0=np.linalg.norm(self.initial_positions[4] - self.initial_positions[5])),
+            
+            DistanceBond(4, 5, k=2000, r0=np.linalg.norm(self.initial_positions[4] - self.initial_positions[5]))            
         ]
         
         for dist_bond in distance_bonds:
@@ -42,9 +63,11 @@ class BeadsQuadCopterEnvironment:
         
         rotation_axis = np.array([0, 0, 1.])
         rotation_axis /= np.linalg.norm(rotation_axis)
-        rotation_matrix = R.from_rotvec(np.pi * rotation_axis)
-        self.target_positions = rotation_matrix.apply(self.initial_positions) + np.array([1, 1, 2])
+        rotation_matrix = R.from_rotvec(0 * rotation_axis)
+        self.target_positions = rotation_matrix.apply(self.initial_positions) + np.array([0, 0, 0])  # np.array([1, 1, 2])
         self.reward_bottom = np.linalg.norm(self.target_positions - self.initial_positions, axis=1).sum()
+        if self.reward_bottom < 0.1:
+            self.reward_bottom = len(self.target_positions)  # TODO: IDK, could be anything
         reward_calculator = StayCloseReward({
             bead_id: self.target_positions[bead_id]
             for bead_id in range(len(self.initial_positions))
