@@ -38,6 +38,10 @@ class Integrator {
         }
       }
 
+      double get_dt() {
+        return dt_;
+      }
+
     private:
         double dt_;
 };

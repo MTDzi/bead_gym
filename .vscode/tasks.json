@@ -6,10 +6,19 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "bazel build -c dbg --cxxopt=\"-std=c++17\" --strip=never //beads_gym/...",
+            "command": "bazel build --cxxopt=\"-std=c++17\" --strip=never //beads_gym/...",
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+        },
+        {
+            "label": "build for speed",
+            "type": "shell",
+            "command": "bazel build --cxxopt=\"-std=c++17\" --strip=never //beads_gym/...",
+            "group": {
+                "kind": "build",
+                "isDefault": false
             },
         }
     ]

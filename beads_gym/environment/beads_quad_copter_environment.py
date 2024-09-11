@@ -16,7 +16,7 @@ from beads_gym.environment.reward.rewards import StayCloseReward
 
 class BeadsQuadCopterEnvironment:
     def __init__(self):
-        self.env_backend = EnvironmentCpp(0.01)
+        self.env_backend = EnvironmentCpp(0.001, 10)
         self.initial_positions = np.array([
             [0.5, 0.5, 0],
             [-0.5, 0.5, 0],
@@ -25,7 +25,6 @@ class BeadsQuadCopterEnvironment:
             
             # Extra Beads to make it stiffer
             [0, 0, -0.25],
-            # [0, 0, 0.25],
             
             # And the bead on top
             [0, 0, 1.25],
@@ -34,37 +33,37 @@ class BeadsQuadCopterEnvironment:
             self.env_backend.add_bead(
                 Bead(bead_id, self.initial_positions[bead_id], mass=1.0, is_mobile=True)
             )
+            
+        self.bonds = [
+            (0, 1, 3000),
+            (1, 2, 3000),
+            (2, 3, 3000),
+            (3, 0, 3000),
+            (0, 2, 4000),
+            (1, 3, 4000),
+            
+            (0, 4, 4000),
+            (1, 4, 4000),
+            (2, 4, 4000),
+            (3, 4, 4000),
+            
+            (4, 5, 4000)
+        ]
         
         distance_bonds = [
-            DistanceBond(0, 1, k=1000),
-            DistanceBond(1, 2, k=1000),
-            DistanceBond(2, 3, k=1000),
-            DistanceBond(3, 0, k=1000),
-            DistanceBond(0, 2, k=2000, r0=np.linalg.norm(self.initial_positions[0] - self.initial_positions[2])),
-            DistanceBond(1, 3, k=2000, r0=np.linalg.norm(self.initial_positions[1] - self.initial_positions[3])),
-            
-            DistanceBond(0, 4, k=1000, r0=np.linalg.norm(self.initial_positions[0] - self.initial_positions[4])),
-            DistanceBond(1, 4, k=1000, r0=np.linalg.norm(self.initial_positions[1] - self.initial_positions[4])),
-            DistanceBond(2, 4, k=1000, r0=np.linalg.norm(self.initial_positions[2] - self.initial_positions[4])),
-            DistanceBond(3, 4, k=1000, r0=np.linalg.norm(self.initial_positions[3] - self.initial_positions[4])),
-
-            # DistanceBond(0, 5, k=1000, r0=np.linalg.norm(self.initial_positions[0] - self.initial_positions[5])),
-            # DistanceBond(1, 5, k=1000, r0=np.linalg.norm(self.initial_positions[1] - self.initial_positions[5])),
-            # DistanceBond(2, 5, k=1000, r0=np.linalg.norm(self.initial_positions[2] - self.initial_positions[5])),
-            # DistanceBond(3, 5, k=1000, r0=np.linalg.norm(self.initial_positions[3] - self.initial_positions[5])),
-            
-            # DistanceBond(4, 5, k=2000, r0=np.linalg.norm(self.initial_positions[4] - self.initial_positions[5])),
-            
-            DistanceBond(4, 5, k=2000, r0=np.linalg.norm(self.initial_positions[4] - self.initial_positions[5]))            
+            DistanceBond(i, j, k=k, r0=np.linalg.norm(self.initial_positions[i] - self.initial_positions[j]))
+            for i, j, k in self.bonds
         ]
         
         for dist_bond in distance_bonds:
             self.env_backend.add_bond(dist_bond)
         
+        translation_vec = 2 * np.array([0, 0, 0])
+        rotation_angle = 0 #  np.pi
         rotation_axis = np.array([0, 0, 1.])
         rotation_axis /= np.linalg.norm(rotation_axis)
-        rotation_matrix = R.from_rotvec(0 * rotation_axis)
-        self.target_positions = rotation_matrix.apply(self.initial_positions) + np.array([0, 0, 0])  # np.array([1, 1, 2])
+        rotation_matrix = R.from_rotvec(rotation_angle * rotation_axis)
+        self.target_positions = rotation_matrix.apply(self.initial_positions) + translation_vec
         self.reward_bottom = np.linalg.norm(self.target_positions - self.initial_positions, axis=1).sum()
         if self.reward_bottom < 0.1:
             self.reward_bottom = len(self.target_positions)  # TODO: IDK, could be anything
@@ -73,10 +72,26 @@ class BeadsQuadCopterEnvironment:
             for bead_id in range(len(self.initial_positions))
         })
         self.env_backend.add_reward_calculator(reward_calculator)
+        bead_on_top_id = len(self.initial_positions) - 1
+        self.env_backend.add_reward_calculator(
+            StayCloseReward({
+                bead_on_top_id: self.target_positions[bead_on_top_id]
+            })
+        )
+        self.env_backend.add_reward_calculator(
+            StayCloseReward({
+                bead_on_top_id: self.target_positions[bead_on_top_id]
+            })
+        )
+        self.env_backend.add_reward_calculator(
+            StayCloseReward({
+                bead_on_top_id: self.target_positions[bead_on_top_id]
+            })
+        )
         self.count = 0
         
         self.videos = []
-        margin = 2
+        margin = 1
         self.global_mins = np.min([self.target_positions.min(axis=0), self.initial_positions.min(axis=0)], axis=0) - margin
         self.global_maxes = np.max([self.target_positions.max(axis=0), self.initial_positions.max(axis=0)], axis=0) + margin
         
@@ -87,17 +102,18 @@ class BeadsQuadCopterEnvironment:
         return self._state()
     
     def step(self, action):
+        anti_gravity = np.array([0.0, 0.0, 9.81])
         action = {
-            0: action[:3],
-            1: action[3:6],
-            2: action[6:9],
-            3: action[9:],    
+            0: action[:3] + anti_gravity,
+            1: action[3:6] + anti_gravity,
+            2: action[6:9] + anti_gravity,
+            3: action[9:] + anti_gravity,    
         }
         partial_rewards = self.env_backend.step(action)
         reward = self.reward_bottom + sum(partial_rewards)
         new_state = self._state()
         self.count += 1
-        truncated = (self.count == 1000)
+        truncated = (self.count == 2000)
         if truncated:
             info = {"TimeLimit.truncated": truncated}
         else:
@@ -123,7 +139,8 @@ class BeadsQuadCopterEnvironment:
             x, y, z = positions_closed.T
             positions = np.r_[positions]
             # TODO: make this automatic based on the bonds
-            ax0.plot(x, y, z, "b", linewidth=3, label="bonds")
+            for i, j, _ in self.bonds:
+                ax0.plot(positions[[i, j], 0], positions[[i, j], 1], positions[[i, j], 2], "b", linewidth=3)
             ax0.scatter(positions[:, 0], positions[:, 1], positions[:, 2], linewidth=10, label="beads")
             ax0.scatter(self.target_positions[:, 0], self.target_positions[:, 1], self.target_positions[:, 2], linewidth=20, alpha=0.3)
             ax0.set_xlim(self.global_mins[0], self.global_maxes[0])
@@ -138,7 +155,8 @@ class BeadsQuadCopterEnvironment:
             rgb_array = np.array(img)
             plt.close(fig)
             
-            self.videos[-1].append(rgb_array)
+            if self.count % 30 == 0:
+                self.videos[-1].append(rgb_array)
             
             return rgb_array
 
@@ -166,7 +184,7 @@ class BeadsQuadCopterEnvironment:
     
     @property
     def reward_range(self):
-        return Box(low=self.reward_bottom, high=16.0, shape=(1,), dtype=np.float32)
+        return Box(low=-2 * self.reward_bottom, high=self.reward_bottom, shape=(1,), dtype=np.float32)
         
     @property
     def observation_space(self):
@@ -184,3 +202,7 @@ class BeadsQuadCopterEnvironment:
 
 if __name__ == "__main__":
     env = BeadsQuadCopterEnvironment()
+    env.reset()
+    plt.imshow(env.render())
+    plt.savefig("test.png")
+    
