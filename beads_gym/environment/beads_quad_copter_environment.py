@@ -16,7 +16,7 @@ from beads_gym.environment.reward.rewards import StayCloseReward
 
 class BeadsQuadCopterEnvironment:
     def __init__(self):
-        self.env_backend = EnvironmentCpp(0.001, 10)
+        self.env_backend = EnvironmentCpp(0.001, 10, 1.0, 0.000)
         self.initial_positions = np.array([
             [0.5, 0.5, 0],
             [-0.5, 0.5, 0],
@@ -58,7 +58,7 @@ class BeadsQuadCopterEnvironment:
         for dist_bond in distance_bonds:
             self.env_backend.add_bond(dist_bond)
         
-        translation_vec = 2 * np.array([0, 0, 0])
+        translation_vec = np.array([0.0, 0., 0.])
         rotation_angle = 0 #  np.pi
         rotation_axis = np.array([0, 0, 1.])
         rotation_axis /= np.linalg.norm(rotation_axis)
@@ -98,6 +98,7 @@ class BeadsQuadCopterEnvironment:
     def reset(self):
         self.env_backend.reset()
         self.count = 0
+        self.videos = []
         self.videos.append([])
         return self._state()
     
@@ -113,7 +114,7 @@ class BeadsQuadCopterEnvironment:
         reward = self.reward_bottom + sum(partial_rewards)
         new_state = self._state()
         self.count += 1
-        truncated = (self.count == 2000)
+        truncated = (self.count == 2500)
         if truncated:
             info = {"TimeLimit.truncated": truncated}
         else:
@@ -155,7 +156,7 @@ class BeadsQuadCopterEnvironment:
             rgb_array = np.array(img)
             plt.close(fig)
             
-            if self.count % 30 == 0:
+            if self.count % 50 == 0:
                 self.videos[-1].append(rgb_array)
             
             return rgb_array
@@ -163,8 +164,12 @@ class BeadsQuadCopterEnvironment:
     def _state(self):
         beads = self.env_backend.get_beads()
         vectorized = np.r_[
+            # [[bead.get_position(), bead.get_velocity(), bead.get_acceleration(), bead.get_external_acceleration() / 100] for bead in beads]
             [[bead.get_position(), bead.get_velocity(), bead.get_acceleration()] for bead in beads]
         ].flatten()
+        # print(np.r_[
+        #     [[bead.get_external_acceleration()] for bead in beads]
+        # ].flatten())
         state = np.r_[
             vectorized,
             # np.linalg.norm(vectorized[:3] - vectorized[9:12]),

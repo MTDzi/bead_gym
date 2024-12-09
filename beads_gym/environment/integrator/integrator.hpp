@@ -33,7 +33,6 @@ class Integrator {
             auto new_velocity = (new_position - prev_positon) / (2 * dt_);
             bead->set_position(new_position);
             bead->set_velocity(new_velocity);
-            bead->zero_out_force();
           }
         }
       }

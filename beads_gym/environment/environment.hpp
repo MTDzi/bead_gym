@@ -33,6 +33,7 @@ class Environment {
         sigma_{sigma} {
           std::random_device rd;
           gen = std::mt19937(rd());
+          dist = std::normal_distribution<>{0.0, 1.0};
           sqrt_dt_ = std::sqrt(dt_);
           prev_wind = Eigen2or3dVector::Zero();
         };
@@ -67,6 +68,22 @@ class Environment {
             bond->apply_forces();
           }
 
+          // Add gravity
+          for (auto& bead : beads_) {
+            bead->add_force(Eigen2or3dVector{0.0, 0.0, -gravity_ * bead->get_mass()});
+          }
+
+          // Add wind (aka Ohrstein-Uhlenbeck process)
+          // auto curr_wind = calc_ohrstein_uhlenbeck_wind();
+          // for (auto& bead : beads_) {
+          //   bead->add_force(curr_wind);
+          // }
+
+          // TODO: can be done just once
+          for (auto& bead : beads_) {
+            bead->save_external_force();
+          }
+
           // Now for the actuators
           for (auto& bead_id : action) {
             auto bead = beads_map_[bead_id.first];
@@ -75,20 +92,12 @@ class Environment {
             );
           }
 
-          // Add gravity
-          for (auto& bead : beads_) {
-            bead->add_force(Eigen2or3dVector{0.0, 0.0, -gravity_ * bead->get_mass()});
-          }
-
-          // Add wind (aka Ohrstein-Uhlenbeck process)
-          auto curr_wind = calc_ohrstein_uhlenbeck_wind();
-          prev_wind = curr_wind;
-          for (auto& bead : beads_) {
-            bead->add_force(curr_wind);
-          }
-
           // And with all forces in place, we can step the integrator
           integrator_.step(beads_);
+
+          for (auto& bead : beads_) {
+            bead->zero_out_force();
+          }
         }
 
         // Finally, we calculate the rewards
@@ -127,11 +136,17 @@ class Environment {
       }
 
       Eigen2or3dVector calc_ohrstein_uhlenbeck_wind() {
-        return prev_wind * (1 - theta_) * dt_ + sigma_ * random_normal_vector() * sqrt_dt_;
+        auto curr_wind = prev_wind * (1.0 - theta_) * dt_ + sigma_ * random_normal_vector() * sqrt_dt_;
+        // auto curr_wind = sigma_ * random_normal_vector() * sqrt_dt_;
+        prev_wind = curr_wind;
+        return curr_wind;
       }
 
       Eigen2or3dVector random_normal_vector() {
         Eigen2or3dVector norm_vec = Eigen2or3dVector::Zero();
+        for (int i=0; i<norm_vec.size(); ++i) {
+          norm_vec(i) = dist(gen);
+        }
         return norm_vec;
       }
 
@@ -150,6 +165,7 @@ class Environment {
         double sigma_;
         Eigen2or3dVector prev_wind;
         std::mt19937 gen;
+        std::normal_distribution<> dist;
         std::vector<std::shared_ptr<RewardType>> reward_calculators_;
 };
 

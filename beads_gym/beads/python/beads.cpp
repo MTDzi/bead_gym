@@ -22,5 +22,6 @@ PYBIND11_MODULE(beads, m) {
       .def("set_position", &::beads_gym::beads::Bead<Eigen::Vector3d>::set_position)
       .def("get_position", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_position)
       .def("get_velocity", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_velocity)
-      .def("get_acceleration", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_acceleration);
+      .def("get_acceleration", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_acceleration)
+      .def("get_external_acceleration", &::beads_gym::beads::Bead<Eigen::Vector3d>::get_external_acceleration);
 }
