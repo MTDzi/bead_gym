@@ -137,7 +137,6 @@ class Environment {
 
       Eigen2or3dVector calc_ohrstein_uhlenbeck_wind() {
         auto curr_wind = prev_wind * (1.0 - theta_) * dt_ + sigma_ * random_normal_vector() * sqrt_dt_;
-        // auto curr_wind = sigma_ * random_normal_vector() * sqrt_dt_;
         prev_wind = curr_wind;
         return curr_wind;
       }
