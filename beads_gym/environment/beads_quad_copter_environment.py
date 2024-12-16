@@ -16,7 +16,9 @@ from beads_gym.environment.reward.rewards import StayCloseReward
 
 class BeadsQuadCopterEnvironment:
     def __init__(self):
-        self.env_backend = EnvironmentCpp(0.001, 10, 1.0, 0.000)
+        # self.env_backend = EnvironmentCpp(0.001, 10, 0.99999, 0.0000000001)  # WORKS
+        self.env_backend = EnvironmentCpp(0.001, 10, 0.999, 0.0000001) # WORKS!
+        # self.env_backend = EnvironmentCpp(0.001, 10, 1.0, 0.0000000)  # WORKS
         self.initial_positions = np.array([
             [0.5, 0.5, 0],
             [-0.5, 0.5, 0],
@@ -164,7 +166,7 @@ class BeadsQuadCopterEnvironment:
     def _state(self):
         beads = self.env_backend.get_beads()
         vectorized = np.r_[
-            # [[bead.get_position(), bead.get_velocity(), bead.get_acceleration(), bead.get_external_acceleration() / 100] for bead in beads]
+            # [[bead.get_position(), bead.get_velocity(), bead.get_acceleration(), bead.get_external_acceleration()] for bead in beads]
             [[bead.get_position(), bead.get_velocity(), bead.get_acceleration()] for bead in beads]
         ].flatten()
         # print(np.r_[

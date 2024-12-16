@@ -74,10 +74,10 @@ class Environment {
           }
 
           // Add wind (aka Ohrstein-Uhlenbeck process)
-          // auto curr_wind = calc_ohrstein_uhlenbeck_wind();
-          // for (auto& bead : beads_) {
-          //   bead->add_force(curr_wind);
-          // }
+          auto curr_wind = calc_ohrstein_uhlenbeck_wind();
+          for (auto& bead : beads_) {
+            bead->add_force(curr_wind);
+          }
 
           // TODO: can be done just once
           for (auto& bead : beads_) {
