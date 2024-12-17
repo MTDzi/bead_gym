@@ -18,6 +18,7 @@ class BeadsQuadCopterEnvironment:
     def __init__(self):
         # self.env_backend = EnvironmentCpp(0.001, 10, 0.99999, 0.0000000001)  # WORKS
         self.env_backend = EnvironmentCpp(0.001, 10, 0.999, 0.0000001) # WORKS!
+        # self.env_backend = EnvironmentCpp(0.001, 10, 0.99, 0.00001)  # Wind too strong, doesn't work
         # self.env_backend = EnvironmentCpp(0.001, 10, 1.0, 0.0000000)  # WORKS
         self.initial_positions = np.array([
             [0.5, 0.5, 0],
