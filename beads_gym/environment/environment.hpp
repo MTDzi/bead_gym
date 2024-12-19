@@ -95,6 +95,8 @@ class Environment {
           // And with all forces in place, we can step the integrator
           integrator_.step(beads_);
 
+          // Which we followup with zeroing out of the forces to start from scratch in the
+          // next iteration
           for (auto& bead : beads_) {
             bead->zero_out_force();
           }
