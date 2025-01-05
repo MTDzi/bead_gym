@@ -172,7 +172,7 @@ class BeadsQuadCopterEnvironment:
         ].flatten()
         # print(np.r_[
         #     [[bead.get_external_acceleration()] for bead in beads]
-        # ].flatten())
+        # ].max())
         state = np.r_[
             vectorized,
             # np.linalg.norm(vectorized[:3] - vectorized[9:12]),
@@ -200,8 +200,9 @@ class BeadsQuadCopterEnvironment:
     
     @property
     def action_space(self):
-        low = np.array(12 * [-5], dtype=np.float32)
-        high = np.array(4 * [5, 5, 20], dtype=np.float32)
+        bound = 6
+        low = np.array(12 * [-bound], dtype=np.float32)
+        high = np.array(12 * [bound], dtype=np.float32)
         return Box(low=low, high=high, shape=(4 * 3,), dtype=np.float32)
 
     def seed(self, seed=None):
