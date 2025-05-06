@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <cmath>
+#include <random>
 #include <memory>
 #include <vector>
 #include <map>
@@ -23,7 +25,18 @@ class Environment {
   using RewardType = beads_gym::environment::reward::StayCloseReward<Eigen2or3dVector>;
 
   public:
-      Environment(double timestep) : integrator_{integrator::Integrator<Eigen2or3dVector>(timestep)} {};
+      Environment(double internal_timestep, int num_internal_steps = 1, double theta = 0.0, double sigma=0.0) 
+      : integrator_{integrator::Integrator<Eigen2or3dVector>(internal_timestep)},
+        dt_{internal_timestep},
+        num_internal_steps_{num_internal_steps}, 
+        theta_{theta},
+        sigma_{sigma} {
+          std::random_device rd;
+          gen = std::mt19937(rd());
+          dist = std::normal_distribution<>{0.0, 1.0};
+          sqrt_dt_ = std::sqrt(dt_);
+          prev_wind = Eigen2or3dVector::Zero();
+        };
       ~Environment() = default;
 
       void add_bead(std::shared_ptr<BeadType> bead) {
@@ -48,25 +61,46 @@ class Environment {
       }
 
       std::vector<double> step(std::map<size_t, std::vector<double>>& action) {
-        for (auto& bond : bonds_) {
-          bond->apply_forces();
-        }
+        for (int internal_step=0; internal_step<num_internal_steps_; ++internal_step) {
+          // First, calculate the forces coming from the bonds themselves
+          for (auto& bond : bonds_) {
+            // TODO: worth parallelizing if number of bonds is large
+            bond->apply_forces();
+          }
 
-        // Now for the actuators
-        for (auto& bead_id : action) {
-          auto bead = beads_map_[bead_id.first];
-          bead->add_force(
-            bead->get_mass() * Eigen2or3dVector{bead_id.second[0], bead_id.second[1], bead_id.second[2]}
-          );
-        }
+          // Add gravity
+          for (auto& bead : beads_) {
+            bead->add_force(Eigen2or3dVector{0.0, 0.0, -gravity_ * bead->get_mass()});
+          }
 
-        // Now for the gravity
-        for (auto& bead : beads_) {
-          bead->add_force(Eigen2or3dVector{0.0, 0.0, -gravity_ * bead->get_mass()});
-        }
+          // Add wind (aka Ohrstein-Uhlenbeck process)
+          auto curr_wind = calc_ohrstein_uhlenbeck_wind();
+          for (auto& bead : beads_) {
+            bead->add_force(curr_wind);
+          }
 
-        // With all forces in place, we can step the integrator
-        integrator_.step(beads_);
+          // TODO: can be done just once
+          for (auto& bead : beads_) {
+            bead->save_external_force();
+          }
+
+          // Now for the actuators
+          for (auto& bead_id : action) {
+            auto bead = beads_map_[bead_id.first];
+            bead->add_force(
+              bead->get_mass() * Eigen2or3dVector{bead_id.second[0], bead_id.second[1], bead_id.second[2]}
+            );
+          }
+
+          // And with all forces in place, we can step the integrator
+          integrator_.step(beads_);
+
+          // Which we followup with zeroing out of the forces to start from scratch in the
+          // next iteration
+          for (auto& bead : beads_) {
+            bead->zero_out_force();
+          }
+        }
 
         // Finally, we calculate the rewards
         std::vector<double> rewards;
@@ -103,6 +137,20 @@ class Environment {
         return potential_;
       }
 
+      Eigen2or3dVector calc_ohrstein_uhlenbeck_wind() {
+        auto curr_wind = prev_wind * (1.0 - theta_) * dt_ + sigma_ * random_normal_vector() * sqrt_dt_;
+        prev_wind = curr_wind;
+        return curr_wind;
+      }
+
+      Eigen2or3dVector random_normal_vector() {
+        Eigen2or3dVector norm_vec = Eigen2or3dVector::Zero();
+        for (int i=0; i<norm_vec.size(); ++i) {
+          norm_vec(i) = dist(gen);
+        }
+        return norm_vec;
+      }
+
     private:
         constexpr static double gravity_ = 9.81;
         std::vector<std::shared_ptr<BeadType>> beads_;
@@ -111,6 +159,14 @@ class Environment {
         std::map<size_t, std::shared_ptr<BeadType>> initial_beads_map_;
         std::vector<std::shared_ptr<BondType>> bonds_;
         integrator::Integrator<Eigen2or3dVector> integrator_;
+        double dt_;
+        double sqrt_dt_;
+        int num_internal_steps_;
+        double theta_;
+        double sigma_;
+        Eigen2or3dVector prev_wind;
+        std::mt19937 gen;
+        std::normal_distribution<> dist;
         std::vector<std::shared_ptr<RewardType>> reward_calculators_;
 };
 

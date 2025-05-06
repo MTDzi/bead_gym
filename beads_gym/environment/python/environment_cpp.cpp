@@ -21,7 +21,7 @@ PYBIND11_MODULE(environment_cpp, m) {
 
     // Class Environment
     py::class_<::beads_gym::environment::Environment<Eigen::Vector3d>, std::shared_ptr<beads_gym::environment::Environment<Eigen::Vector3d>>>(m, "EnvironmentCpp")
-      .def(py::init<double>(), py::arg("timestep"))
+      .def(py::init<double, int, double, double>(), py::arg("timestep"), py::arg("num_internal_steps") = 1, py::arg("theta") = 0.0, py::arg("sigma") = 0.0)
       .def("add_bead", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead)
       .def("add_bond", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bond)
       .def("add_reward_calculator", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_reward_calculator)

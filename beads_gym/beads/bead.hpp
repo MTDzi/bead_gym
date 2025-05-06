@@ -16,7 +16,7 @@ class Bead {
       Bead() = delete;
       Bead(size_t id, std::vector<double> &position, double mass, bool is_mobile, const std::vector<int> &constrained_axes = {})
         : id_(id), mass_(mass), velocity_(Eigen2or3dVector::Zero()), 
-          acceleration_(Eigen2or3dVector::Zero()), force_(Eigen2or3dVector::Zero()),
+          acceleration_(Eigen2or3dVector::Zero()), force_(Eigen2or3dVector::Zero()), external_force_(Eigen2or3dVector::Zero()),
           is_mobile_(is_mobile), constrained_axes_(constrained_axes) {
         // FIXME: re-use the other constructor 
         assert(mass > 0);
@@ -28,7 +28,7 @@ class Bead {
       Bead(size_t id, Eigen2or3dVector &position, double mass, bool is_mobile, const std::vector<int> &constrained_axes = {})
         : id_(id), mass_(mass), position_{position}, prev_position_{position},
           velocity_(Eigen2or3dVector::Zero()),
-          acceleration_(Eigen2or3dVector::Zero()), force_(Eigen2or3dVector::Zero()),
+          acceleration_(Eigen2or3dVector::Zero()), force_(Eigen2or3dVector::Zero()), external_force_(Eigen2or3dVector::Zero()),
           is_mobile_(is_mobile), constrained_axes_(constrained_axes) {
         assert(mass > 0);
         // Initialization logic is centralized here.
@@ -57,9 +57,14 @@ class Bead {
       Eigen2or3dVector get_acceleration() const { return force_ / mass_; }
       void add_acceleration(const Eigen2or3dVector& acceleration) { acceleration_ += acceleration; }
 
+      Eigen2or3dVector get_external_acceleration() const { return external_force_ / mass_; }
+
       Eigen2or3dVector get_force() const { return force_; }
       void add_force(const Eigen2or3dVector& force) { force_ += force; }
       void zero_out_force() { force_ = Eigen2or3dVector::Zero(); }
+      void save_external_force() {
+        external_force_ = Eigen2or3dVector(force_);
+      }
     
       size_t get_id() const { return id_; }
 
@@ -73,6 +78,7 @@ class Bead {
       Eigen2or3dVector velocity_;
       Eigen2or3dVector acceleration_;
       Eigen2or3dVector force_;
+      Eigen2or3dVector external_force_;
       bool is_mobile_;
       const std::vector<int> constrained_axes_;
   };
