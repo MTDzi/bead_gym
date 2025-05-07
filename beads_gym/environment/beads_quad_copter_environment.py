@@ -1,5 +1,4 @@
 import io
-import math
 import numpy as np
 from gym.spaces.box import Box
 from scipy.spatial.transform import Rotation as R

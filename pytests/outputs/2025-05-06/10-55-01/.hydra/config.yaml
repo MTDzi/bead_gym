@@ -1,0 +1,21 @@
+beads:
+- _target_: beads_gym.beads.beads.Bead
+  id: 0
+  position:
+  - 0.0
+  - 0.0
+  - 0.0
+  mass: 1.0
+  is_mobile: false
+- _target_: beads_gym.beads.beads.Bead
+  id: 1
+  position:
+  - 1
+  - 0
+  - 0
+  mass: 1.0
+  is_mobile: true
+bonds:
+- _target_: beads_gym.bonds.bonds.DistanceBond
+  bead1: 0
+  bead2: 1

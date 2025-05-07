@@ -17,7 +17,8 @@ REWARD_BOTTOM = -1
 
 
 def seed_everything(seed: int):
-    import random, os
+    import random
+    import os
     import numpy as np
     import torch
     

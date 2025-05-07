@@ -1,7 +1,3 @@
-from beads_gym.environment.beads_cart_pole_environment import BeadsCartPoleEnvironment
-from beads_gym.environment.beads_quad_copter_environment import BeadsQuadCopterEnvironment
-
-
 import warnings
 warnings.filterwarnings('ignore')
 import os
@@ -12,8 +8,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.multiprocessing as mp
-from torch.distributions import Normal
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,16 +18,17 @@ import moviepy.editor as mpy
 import os.path
 import tempfile
 import random
-import base64
 import glob
 import time
-import json
 import gym
-import io
 import os
 import gc
 
 from gym import wrappers
+
+from beads_gym.environment.beads_cart_pole_environment import BeadsCartPoleEnvironment
+from beads_gym.environment.beads_quad_copter_environment import BeadsQuadCopterEnvironment
+
 
 LEAVE_PRINT_EVERY_N_SECS = 300
 ERASE_LINE = '\x1b[2K'
@@ -64,7 +59,7 @@ pylab.rcParams.update(params)
 np.set_printoptions(suppress=True)
 
 
-def get_make_env_fn(**kargs):
+def get_make_env_fn(**kwargs):
     def make_env_fn(env_name, seed=None, render=None, record=False,
                     unwrapped=False, monitor_mode=None, 
                     inner_wrappers=None, outer_wrappers=None):
@@ -102,33 +97,34 @@ def get_make_env_fn(**kargs):
             for wrapper in outer_wrappers:
                 env = wrapper(env)
         return env
-    return make_env_fn, kargs
+    return make_env_fn, kwargs
 
 
-def get_videos_html(env_videos, title, max_n_videos=4):
-    videos = np.array(env_videos)
-    if len(videos) == 0:
-        return
+# def get_videos_html(env_videos, title, max_n_videos=4):
+#     videos = np.array(env_videos)
+#     if len(videos) == 0:
+#         return
     
-    n_videos = max(1, min(max_n_videos, len(videos)))
-    idxs = np.linspace(0, len(videos) - 1, n_videos).astype(int) if n_videos > 1 else [-1,]
-    videos = videos[idxs,...]
+#     n_videos = max(1, min(max_n_videos, len(videos)))
+#     idxs = np.linspace(0, len(videos) - 1, n_videos).astype(int) if n_videos > 1 else [-1,]
+#     videos = videos[idxs,...]
 
-    strm = '<h2>{}<h2>'.format(title)
-    for video_path, meta_path in videos:
-        video = io.open(video_path, 'r+b').read()
-        encoded = base64.b64encode(video)
+#     strm = '<h2>{}<h2>'.format(title)
+#     for video_path, meta_path in videos:
+#         video = io.open(video_path, 'r+b').read()
+#         encoded = base64.b64encode(video)
 
-        with open(meta_path) as data_file:    
-            meta = json.load(data_file)
+#         with open(meta_path) as data_file:    
+#             meta = json.load(data_file)
 
-        html_tag = """
-        <h3>{0}<h3/>
-        <video width="960" height="540" controls>
-            <source src="data:video/mp4;base64,{1}" type="video/mp4" />
-        </video>"""
-        strm += html_tag.format('Episode ' + str(meta['episode_id']), encoded.decode('ascii'))
-    return strm
+#         html_tag = """
+#         <h3>{0}<h3/>
+#         <video width="960" height="540" controls>
+#             <source src="data:video/mp4;base64,{1}" type="video/mp4" />
+#         </video>"""
+#         strm += html_tag.format('Episode ' + str(meta['episode_id']), encoded.decode('ascii'))
+#     return strm
+
 
 def get_gif_html(video, title, video_id):
     video = np.array(video)
@@ -137,7 +133,6 @@ def get_gif_html(video, title, video_id):
 
     # Create a VideoClip
     clip = mpy.VideoClip(
-        # fun,
         lambda t: video[int(t * fps)],
         duration=num_frames / fps,
     )
@@ -146,22 +141,24 @@ def get_gif_html(video, title, video_id):
     clip.write_videofile(f"{title}_{video_id}.mp4", fps=fps)
 
 
-class RenderUint8(gym.Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
-    def render(self, mode='rgb_array'):
-        frame = self.env.render(mode=mode)
-        return frame.astype(np.uint8)
+# class RenderUint8(gym.Wrapper):
+#     def __init__(self, env):
+#         super().__init__(env)
+#     def reset(self, **kwargs):
+#         return self.env.reset(**kwargs)
+#     def render(self, mode='rgb_array'):
+#         frame = self.env.render(mode=mode)
+#         return frame.astype(np.uint8)
 
 
 class FCQV(nn.Module):
-    def __init__(self, 
-                 input_dim, 
-                 output_dim, 
-                 hidden_dims=(32,32), 
-                 activation_fc=F.relu):
+    def __init__(
+        self, 
+        input_dim, 
+        output_dim, 
+        hidden_dims=(32, 32), 
+        activation_fc=F.relu,
+    ):
         super(FCQV, self).__init__()
         self.activation_fc = activation_fc
 
@@ -215,12 +212,14 @@ class FCQV(nn.Module):
 
 
 class FCDP(nn.Module):
-    def __init__(self, 
-                 input_dim,
-                 action_bounds,
-                 hidden_dims=(32,32), 
-                 activation_fc=F.selu,
-                 out_activation_fc=F.tanh):
+    def __init__(
+        self, 
+        input_dim,
+        action_bounds,
+        hidden_dims=(32, 32), 
+        activation_fc=F.selu,
+        out_activation_fc=F.tanh,
+    ):
         super(FCDP, self).__init__()
         self.activation_fc = activation_fc
         self.out_activation_fc = out_activation_fc
@@ -273,10 +272,12 @@ class FCDP(nn.Module):
         return self.rescale_fn(x)
 
 
-class ReplayBuffer():
-    def __init__(self, 
-                 max_size=10000, 
-                 batch_size=64):
+class ReplayBuffer:
+    def __init__(
+        self, 
+        max_size=10000, 
+        batch_size=64,
+    ):
         self.ss_mem = np.empty(shape=(max_size), dtype=np.ndarray)
         self.as_mem = np.empty(shape=(max_size), dtype=np.ndarray)
         self.rs_mem = np.empty(shape=(max_size), dtype=np.ndarray)
@@ -332,7 +333,7 @@ class GreedyStrategy():
         return np.reshape(action, self.high.shape)
 
 
-class NormalNoiseStrategy():
+class NormalNoiseStrategy:
     def __init__(self, bounds, exploration_noise_ratio=0.1, exploration_noise_amplitude=None, ou_process=False):
         self.low, self.high = bounds
         
@@ -367,7 +368,7 @@ class NormalNoiseStrategy():
         return action
     
     
-class NormalNoiseDecayStrategy():
+class NormalNoiseDecayStrategy:
     def __init__(
         self,
         bounds,
@@ -415,7 +416,7 @@ class NormalNoiseDecayStrategy():
         return action
 
 
-class DDPG():
+class DDPG:
     def __init__(self, 
                  replay_buffer_fn,
                  policy_model_fn, 
@@ -506,17 +507,17 @@ class DDPG():
             mixed_weights = target_ratio + online_ratio
             target.data.copy_(mixed_weights)
 
-    def train(self, make_env_fn, make_env_kargs, seed, gamma, 
+    def train(self, make_env_fn, make_env_kwargs, seed, gamma, 
               max_minutes, max_episodes, goal_mean_100_reward):
         training_start, last_debug_time = time.time(), float('-inf')
 
         self.checkpoint_dir = tempfile.mkdtemp()
         self.make_env_fn = make_env_fn
-        self.make_env_kargs = make_env_kargs
+        self.make_env_kwargs = make_env_kwargs
         self.seed = seed
         self.gamma = gamma
         
-        env = self.make_env_fn(**self.make_env_kargs, seed=self.seed)
+        env = self.make_env_fn(**self.make_env_kwargs, seed=self.seed)
         torch.manual_seed(self.seed) ; np.random.seed(self.seed) ; random.seed(self.seed)
     
         nS, nA = env.observation_space.shape[0], env.action_space.shape[0]
@@ -680,7 +681,7 @@ class DDPG():
         self.online_policy_model.load_state_dict(torch.load(checkpoint_paths[last_ep]))
 
         for i in range(n_episodes):
-            env = self.make_env_fn(**self.make_env_kargs, monitor_mode='evaluation', render=True, record=True)
+            env = self.make_env_fn(**self.make_env_kwargs, monitor_mode='evaluation', render=True, record=True)
             self.evaluate(self.online_policy_model, env, n_episodes=1)
             env.close()
             get_gif_html(
@@ -691,7 +692,7 @@ class DDPG():
         del env
 
     def demo_progression(self, title='{} Agent progression', max_n_videos=4):
-        env = self.make_env_fn(**self.make_env_kargs, monitor_mode='evaluation', render=True, record=True)
+        env = self.make_env_fn(**self.make_env_kwargs, monitor_mode='evaluation', render=True, record=True)
 
         checkpoint_paths = self.get_cleaned_checkpoints()
         for i in sorted(checkpoint_paths.keys()):
@@ -719,17 +720,17 @@ for seed in SEEDS:
         # 'env_name': 'BeadsCartPole',
         'env_name': 'BeadsQuadCopterEnvironment',
         'gamma': 0.99, # 0.99,
-        'max_minutes': 360,
-        'max_episodes': 1500,
+        'max_minutes': 36,#0,
+        'max_episodes': 150,#0,
         'goal_mean_100_reward': 140000.0,
     }
 
-    policy_model_fn = lambda nS, bounds: FCDP(nS, bounds, hidden_dims=(300,300))
+    policy_model_fn = lambda nS, bounds: FCDP(nS, bounds, hidden_dims=(300, 300))
     policy_max_grad_norm = float('inf')
     policy_optimizer_fn = lambda net, lr: optim.Adam(net.parameters(), lr=lr)
     policy_optimizer_lr = 0.0005
 
-    value_model_fn = lambda nS, nA: FCQV(nS, nA, hidden_dims=(300,300))
+    value_model_fn = lambda nS, nA: FCQV(nS, nA, hidden_dims=(300, 300))
     value_max_grad_norm = float('inf')
     value_optimizer_fn = lambda net, lr: optim.Adam(net.parameters(), lr=lr)
     value_optimizer_lr = 0.0005
@@ -757,24 +758,26 @@ for seed in SEEDS:
     env_name, gamma, max_minutes, \
     max_episodes, goal_mean_100_reward = environment_settings.values()
 
-    agent = DDPG(replay_buffer_fn,
-                 policy_model_fn, 
-                 policy_max_grad_norm, 
-                 policy_optimizer_fn, 
-                 policy_optimizer_lr,
-                 value_model_fn, 
-                 value_max_grad_norm, 
-                 value_optimizer_fn, 
-                 value_optimizer_lr, 
-                 training_strategy_fn,
-                 evaluation_strategy_fn,
-                 n_warmup_batches,
-                 update_target_every_steps,
-                 tau)
+    agent = DDPG(
+        replay_buffer_fn,
+        policy_model_fn, 
+        policy_max_grad_norm, 
+        policy_optimizer_fn, 
+        policy_optimizer_lr,
+        value_model_fn, 
+        value_max_grad_norm, 
+        value_optimizer_fn, 
+        value_optimizer_lr, 
+        training_strategy_fn,
+        evaluation_strategy_fn,
+        n_warmup_batches,
+        update_target_every_steps,
+        tau,
+    )
 
-    make_env_fn, make_env_kargs = get_make_env_fn(env_name=env_name)
+    make_env_fn, make_env_kwargs = get_make_env_fn(env_name=env_name)
     result, final_eval_score, training_time, wallclock_time = agent.train(
-        make_env_fn, make_env_kargs, seed, gamma, max_minutes, max_episodes, goal_mean_100_reward)
+        make_env_fn, make_env_kwargs, seed, gamma, max_minutes, max_episodes, goal_mean_100_reward)
     ddpg_results.append(result)
     if final_eval_score > best_eval_score:
         best_eval_score = final_eval_score
@@ -796,7 +799,7 @@ ddpg_mean_t, ddpg_mean_r, ddpg_mean_s, ddpg_mean_exp, \
 ddpg_mean_sec, ddpg_mean_rt = np.mean(ddpg_results, axis=0).T
 ddpg_x = np.arange(len(ddpg_mean_s))
 
-fig, axs = plt.subplots(3, 1, figsize=(15,10), sharey=False, sharex=True)
+fig, axs = plt.subplots(3, 1, figsize=(15, 10), sharey=False, sharex=True)
 
 # DDPG
 axs[0].plot(ddpg_max_r, 'r', linewidth=1)
