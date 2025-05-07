@@ -4,6 +4,8 @@ import os
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 os.environ['OMP_NUM_THREADS'] = '1'
 
+from functools import partial
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -141,14 +143,10 @@ def get_gif_html(video, title, video_id):
     clip.write_videofile(f"{title}_{video_id}.mp4", fps=fps)
 
 
-# class RenderUint8(gym.Wrapper):
-#     def __init__(self, env):
-#         super().__init__(env)
-#     def reset(self, **kwargs):
-#         return self.env.reset(**kwargs)
-#     def render(self, mode='rgb_array'):
-#         frame = self.env.render(mode=mode)
-#         return frame.astype(np.uint8)
+class ReinstantiableMixin:
+    @classmethod
+    def from_args(cls, *args, **kwargs):
+        return cls(*args, **kwargs)
 
 
 class FCQV(nn.Module):
@@ -272,7 +270,7 @@ class FCDP(nn.Module):
         return self.rescale_fn(x)
 
 
-class ReplayBuffer:
+class ReplayBuffer(ReinstantiableMixin):
     def __init__(
         self, 
         max_size=10000, 
@@ -417,32 +415,31 @@ class NormalNoiseDecayStrategy:
 
 
 class DDPG:
-    def __init__(self, 
-                 replay_buffer_fn,
-                 policy_model_fn, 
-                 policy_max_grad_norm, 
-                 policy_optimizer_fn, 
-                 policy_optimizer_lr,
-                 value_model_fn, 
-                 value_max_grad_norm, 
-                 value_optimizer_fn, 
-                 value_optimizer_lr, 
-                 training_strategy_fn,
-                 evaluation_strategy_fn,
-                 n_warmup_batches,
-                 update_target_every_steps,
-                 tau):
+    def __init__(
+        self,
+        *,
+        replay_buffer_fn,
+        policy_model_fn, 
+        policy_max_grad_norm, 
+        policy_optimizer_fn, 
+        value_model_fn, 
+        value_max_grad_norm, 
+        value_optimizer_fn, 
+        training_strategy_fn,
+        evaluation_strategy_fn,
+        n_warmup_batches,
+        update_target_every_steps,
+        tau,
+    ):
         self.replay_buffer_fn = replay_buffer_fn
 
         self.policy_model_fn = policy_model_fn
         self.policy_max_grad_norm = policy_max_grad_norm
         self.policy_optimizer_fn = policy_optimizer_fn
-        self.policy_optimizer_lr = policy_optimizer_lr
         
         self.value_model_fn = value_model_fn
         self.value_max_grad_norm = value_max_grad_norm
         self.value_optimizer_fn = value_optimizer_fn
-        self.value_optimizer_lr = value_optimizer_lr
 
         self.training_strategy_fn = training_strategy_fn
         self.evaluation_strategy_fn = evaluation_strategy_fn
@@ -533,10 +530,8 @@ class DDPG:
         self.target_policy_model = self.policy_model_fn(nS, action_bounds)
         self.online_policy_model = self.policy_model_fn(nS, action_bounds)
         self.update_networks(tau=1.0)
-        self.value_optimizer = self.value_optimizer_fn(self.online_value_model, 
-                                                       self.value_optimizer_lr)        
-        self.policy_optimizer = self.policy_optimizer_fn(self.online_policy_model, 
-                                                         self.policy_optimizer_lr)
+        self.value_optimizer = self.value_optimizer_fn(self.online_value_model.parameters())        
+        self.policy_optimizer = self.policy_optimizer_fn(self.online_policy_model.parameters())
 
         self.replay_buffer = self.replay_buffer_fn()
         self.training_strategy = training_strategy_fn(action_bounds)
@@ -727,30 +722,30 @@ for seed in SEEDS:
 
     policy_model_fn = lambda nS, bounds: FCDP(nS, bounds, hidden_dims=(300, 300))
     policy_max_grad_norm = float('inf')
-    policy_optimizer_fn = lambda net, lr: optim.Adam(net.parameters(), lr=lr)
-    policy_optimizer_lr = 0.0005
+    policy_optimizer_fn = partial(optim.Adam, lr=0.0005)
 
     value_model_fn = lambda nS, nA: FCQV(nS, nA, hidden_dims=(300, 300))
     value_max_grad_norm = float('inf')
-    value_optimizer_fn = lambda net, lr: optim.Adam(net.parameters(), lr=lr)
-    value_optimizer_lr = 0.0005
+    value_optimizer_fn = partial(optim.Adam, lr=0.0005)
 
     # training_strategy_fn = lambda bounds: NormalNoiseStrategy(bounds, exploration_noise_ratio=0.1, exploration_noise_amplitude=1.0)
-    training_strategy_fn = lambda bounds: NormalNoiseDecayStrategy(bounds,
-                                                                   init_noise_ratio_mult=0.1,
-                                                                   min_noise_ratio_mult=0.01,
-                                                                   init_noise_ratio_add=1.5,
-                                                                   min_noise_ratio_add=0.01,
-                                                                   decay_steps=1_000_000)
+    training_strategy_fn = partial(
+        NormalNoiseDecayStrategy,
+        init_noise_ratio_mult=0.1,
+        min_noise_ratio_mult=0.01,
+        init_noise_ratio_add=1.5,
+        min_noise_ratio_add=0.01,
+        decay_steps=1_000_000,
+    )
     # training_strategy_fn = lambda bounds: NormalNoiseStrategy(
     #     bounds,
     #     exploration_noise_ratio=0.1,
     #     exploration_noise_amplitude=0.2,
     #     ou_process=True,    
     # )
-    evaluation_strategy_fn = lambda bounds: GreedyStrategy(bounds)
+    evaluation_strategy_fn = partial(GreedyStrategy)
 
-    replay_buffer_fn = lambda: ReplayBuffer(max_size=1_000_000, batch_size=256)
+    replay_buffer_fn = partial(ReplayBuffer, max_size=1_000_000, batch_size=256)
     n_warmup_batches = 5
     update_target_every_steps = 2
     tau = 0.005
@@ -759,20 +754,18 @@ for seed in SEEDS:
     max_episodes, goal_mean_100_reward = environment_settings.values()
 
     agent = DDPG(
-        replay_buffer_fn,
-        policy_model_fn, 
-        policy_max_grad_norm, 
-        policy_optimizer_fn, 
-        policy_optimizer_lr,
-        value_model_fn, 
-        value_max_grad_norm, 
-        value_optimizer_fn, 
-        value_optimizer_lr, 
-        training_strategy_fn,
-        evaluation_strategy_fn,
-        n_warmup_batches,
-        update_target_every_steps,
-        tau,
+        replay_buffer_fn=replay_buffer_fn,
+        policy_model_fn=policy_model_fn, 
+        policy_max_grad_norm=policy_max_grad_norm, 
+        policy_optimizer_fn=policy_optimizer_fn, 
+        value_model_fn=value_model_fn, 
+        value_max_grad_norm=value_max_grad_norm, 
+        value_optimizer_fn=value_optimizer_fn, 
+        training_strategy_fn=training_strategy_fn,
+        evaluation_strategy_fn=evaluation_strategy_fn,
+        n_warmup_batches=n_warmup_batches,
+        update_target_every_steps=update_target_every_steps,
+        tau=tau,
     )
 
     make_env_fn, make_env_kwargs = get_make_env_fn(env_name=env_name)
