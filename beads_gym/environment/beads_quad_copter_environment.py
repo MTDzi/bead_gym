@@ -1,5 +1,4 @@
 import io
-import math
 import numpy as np
 from gym.spaces.box import Box
 from scipy.spatial.transform import Rotation as R
@@ -15,10 +14,14 @@ from beads_gym.environment.reward.rewards import StayCloseReward
 
 
 class BeadsQuadCopterEnvironment:
-    def __init__(self):
+    def __init__(self, do_render=None, do_record=None, monitor_mode=None):
+        self.do_render = do_render
+        self.do_record = do_record
+        self.monitor_mode = monitor_mode
+        
         # self.env_backend = EnvironmentCpp(0.001, 10, 0.99999, 0.0000000001)  # WORKS
-        # self.env_backend = EnvironmentCpp(0.001, 10, 0.999, 0.0000001) # WORKS!
-        self.env_backend = EnvironmentCpp(0.001, 10, 0.99, 0.00001)  # Wind too strong, doesn't work
+        self.env_backend = EnvironmentCpp(0.001, 10, 0.999, 0.0000001) # WORKS!
+        # self.env_backend = EnvironmentCpp(0.001, 10, 0.99, 0.00001)  # Wind too strong, doesn't work
         # self.env_backend = EnvironmentCpp(0.001, 10, 1.0, 0.0000000)  # WORKS
         self.initial_positions = np.array([
             [0.5, 0.5, 0],

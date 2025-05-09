@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 '''Test APIs'''
 
-import sys
-import unittest
 
-import beads_gym.beads.python as bp
-from beads_gym.beads.python.py_bead_gym import Bead
 
 # if __debug__:
 #     print(f'python path: {sys.path}')

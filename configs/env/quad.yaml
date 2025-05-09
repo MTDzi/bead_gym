@@ -1,0 +1,4 @@
+_target_: beads_gym.environment.beads_quad_copter_environment.BeadsQuadCopterEnvironment
+do_render: null
+do_record: null
+monitor_mode: null
