@@ -32,7 +32,11 @@ def seed_everything(seed: int):
 
 
 class BeadsCartPoleEnvironment:
-    def __init__(self):
+    def __init__(self, do_render=None, do_record=None, monitor_mode=None):
+        self.do_render = do_render
+        self.do_record = do_record
+        self.monitor_mode = monitor_mode
+
         self.env_backend = EnvironmentCpp(0.01)
         bead_0 = Bead(0, [0, 0, 0], 1.0, True)
         bead_1 = Bead(1, [0, 0, 1], 1.0, True)
