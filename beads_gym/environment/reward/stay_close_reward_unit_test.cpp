@@ -15,7 +15,8 @@ namespace beads_gym::environment::reward {
 TEST(RewardTest, RewardConstructor) {
 
   std::map<size_t, std::vector<double>> reference_positions = {{0, {0, 0, 0}}, {1, {0, 0, 1}}};
-  StayCloseReward<Eigen::Vector3d> reward{reference_positions};
+  std::vector<double> weights = {1.0, 2.0};
+  StayCloseReward<Eigen::Vector3d> reward{reference_positions, weights};
   
   std::vector<std::shared_ptr<beads_gym::beads::Bead<Eigen::Vector3d>>> beads;
   for (int i=1; i<10; ++i) {
