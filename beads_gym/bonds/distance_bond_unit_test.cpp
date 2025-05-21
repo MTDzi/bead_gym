@@ -21,8 +21,8 @@ TEST(DistanceBondTest, DistanceBondConstructor) {
   dist_bond.set_bead_1(bead_1);
   dist_bond.set_bead_2(bead_2);
 
-  // // Check if the pote ntial is equal to 0
-  EXPECT_EQ(dist_bond.potential(), 1.0);
+  // // Check if the potential is equal to 0
+  EXPECT_EQ(dist_bond.potential(), 0.0);
 
   std::cout << "Before:" << bead_1->get_force() << std::endl;
 
@@ -30,7 +30,7 @@ TEST(DistanceBondTest, DistanceBondConstructor) {
 
   std::cout << "After: " << bead_1->get_force() << std::endl;
 
-  EXPECT_EQ(dist_bond.potential(), 1.0);
+  EXPECT_EQ(dist_bond.potential(), 0.0);
 }
 
 } // namespace beads_gym.beads
