@@ -1,9 +1,9 @@
 defaults:
-  - env: quad
-  # - _self_
+  # - env: quad
+  - env: generic
 
-seeds: [12]
-# seeds: [12, 13, 14, 15]
+# seeds: [12]
+seeds: [12, 13, 14, 15]
 
 agent:
   tau: 0.005
@@ -12,8 +12,8 @@ agent:
   leave_print_every_n_secs: 300
   train:
     gamma: 0.99
-    max_minutes: 36 #0
-    max_episodes: 150 #0
+    max_minutes: 360
+    max_episodes: 1500
     goal_mean_100_reward: 140_000
 
 train_strategy:

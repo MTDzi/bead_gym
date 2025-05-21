@@ -50,6 +50,7 @@ class BazelBuildExtension(build_ext.build_ext):
         bazel_argv = [
             "bazel",
             "build",
+            "--cxxopt=-std=c++17",
             bazel_extension.bazel_target,
             f"--symlink_prefix={temp_path / 'bazel-'}",
         ]
