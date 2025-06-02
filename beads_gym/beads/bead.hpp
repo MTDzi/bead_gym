@@ -39,8 +39,6 @@ class Bead {
       Bead& operator=(Bead&&) = default;
       ~Bead() = default;
 
-      double get_mass() const { return mass_; }
-
       Eigen2or3dVector get_position() const { return position_; }
       void set_position(const Eigen2or3dVector &position) {
         prev_position_ = position_;
@@ -67,6 +65,7 @@ class Bead {
       }
     
       size_t get_id() const { return id_; }
+      double get_mass() const { return mass_; }
 
       bool is_mobile() const { return is_mobile_; }
         

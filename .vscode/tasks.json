@@ -13,6 +13,15 @@
             }
         },
         {
+            "label": "build for debug",
+            "type": "shell",
+            "command": "bazel build --cxxopt=\"-std=c++17\" --copt=\"-Wno-error=unused-but-set-variable\" --compilation_mode=dbg --strip=never //beads_gym/...",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "build for speed",
             "type": "shell",
             "command": "bazel build --cxxopt=\"-std=c++17\" --compilation_mode=opt --strip=never //beads_gym/...",

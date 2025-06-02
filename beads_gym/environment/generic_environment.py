@@ -22,6 +22,7 @@ class GenericEnvironment:
         do_record: bool | None,
         monitor_mode: bool | None,
         max_num_steps: int = 2500,
+        bead_groups: list[list[int]] | None = None,
     ):
         self.env_backend = env_backend
         
@@ -69,6 +70,10 @@ class GenericEnvironment:
         weights = (len(beads) - 1) * [1] + [4]
         self.env_backend.add_reward_calculator(StayCloseReward.from_beads(beads, weights))
         self.reward_bottom = len(beads)  # TODO: IDK, can be anything
+        
+        if bead_groups:
+            for bead_group in bead_groups:
+                self.env_backend.add_bead_group(bead_group)
         
         self.step_count = 0
         self.videos = []

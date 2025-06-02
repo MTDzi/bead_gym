@@ -25,6 +25,7 @@ PYBIND11_MODULE(environment_cpp, m) {
       .def("add_bead", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead)
       .def("add_bond", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bond)
       .def("add_reward_calculator", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_reward_calculator)
+      .def("add_bead_group", &::beads_gym::environment::Environment<Eigen::Vector3d>::add_bead_group)
       .def("get_beads", &::beads_gym::environment::Environment<Eigen::Vector3d>::get_beads)
       .def("step", &::beads_gym::environment::Environment<Eigen::Vector3d>::step)
       .def("calc_bond_potential", &::beads_gym::environment::Environment<Eigen::Vector3d>::calc_bond_potential)
