@@ -1,9 +1,11 @@
 defaults:
   # - env: quad
-  - env: generic
+  # - env: generic
+  - env: generic_with_bead_group
 
 # seeds: [12]
-seeds: [12, 13, 14, 15]
+seeds: [12, 13]
+# seeds: [12, 13, 14, 15]
 
 agent:
   tau: 0.005

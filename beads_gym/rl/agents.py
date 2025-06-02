@@ -15,6 +15,8 @@ ERASE_LINE = '\x1b[2K'
 
 
 def get_gif_html(video, title, video_id):
+    if len(video) == 0:
+        return
     video = np.array(video)
     num_frames = len(video)
     fps = 10
